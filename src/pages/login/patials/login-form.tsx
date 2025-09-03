@@ -1,17 +1,11 @@
 import { motion } from "framer-motion";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Mail, Lock, Loader2 } from "lucide-react";
-import { Button } from "../../../components/ui/Button";
-import { GoogleIcon } from "../../../components/Icon";
-import { Input } from "../../../components/ui/input";
+import { Button } from "../../../components/ui/button";
 
-// Placeholder for Google Sign-In callback
-declare global {
-  interface Window {
-    google: any;
-  }
-}
+import { Input } from "../../../components/ui/input";
+import { GoogleIcon } from "../../../components/icon";
 
 export default function LoginForm() {
   const [email, setEmail] = useState("");

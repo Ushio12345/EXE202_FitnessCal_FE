@@ -8,17 +8,17 @@ import {
   Facebook,
 } from "lucide-react";
 import Banner from "../../../assets/images/banner.jpg";
-import { Button } from "../../../components/ui/Button";
+import { Button } from "../../../components/ui/button";
 import { useNavigate } from "react-router-dom";
 
 export default function WelcomePage() {
   const navigate = useNavigate();
   return (
-    <div className="min-h-screen bg-gray text-title flex flex-col justify-between">
+    <div className="min-h-screen  text-title flex flex-col justify-between">
       <section
         className="relative flex flex-col items-center justify-center text-center px-6 py-20 bg-cover bg-center bg-no-repeat"
         style={{
-          backgroundImage: `url(${Banner}), linear-gradient(to right, var(--color-primary-100), var(--color-secondary-100))`,
+          backgroundImage: `url(${Banner})`,
         }}
       >
         <div className="absolute inset-0 bg-black/50" />
@@ -33,7 +33,7 @@ export default function WelcomePage() {
           </h1>
           <p className="text-lg md:text-2xl text-white max-w-3xl mx-auto leading-relaxed drop-shadow-md">
             Ứng dụng gợi ý{" "}
-            <span className="font-semibold text-primary-300">
+            <span className="font-semibold text-success-500">
               món ăn dinh dưỡng
             </span>{" "}
             cho gymer – giúp bạn chinh phục mục tiêu tập luyện nhanh hơn.
@@ -59,22 +59,28 @@ export default function WelcomePage() {
       </section>
 
       {/* Benefits Section */}
-      <section className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 px-6 md:px-16 py-20 bg-white">
+      <section className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 px-6 md:px-16 py-20">
         {[
           {
-            icon: <Salad className="w-14 h-14 text-success-500 mb-4" />,
+            icon: (
+              <Salad className="w-14 h-14 text-success-500 mb-4 border rounded-full p-2 bg-secondary-100" />
+            ),
             title: "Tăng cơ",
             description:
               "Thực đơn giàu protein được thiết kế khoa học để tối ưu hóa quá trình xây dựng cơ bắp.",
           },
           {
-            icon: <Flame className="w-14 h-14 text-error-500 mb-4" />,
+            icon: (
+              <Flame className="w-14 h-14 text-error-500 mb-4 order rounded-full p-2 bg-secondary-100" />
+            ),
             title: "Giảm mỡ",
             description:
               "Gợi ý món ăn ít calo, hỗ trợ giảm cân an toàn mà vẫn đảm bảo dinh dưỡng.",
           },
           {
-            icon: <Apple className="w-14 h-14 text-primary-500 mb-4" />,
+            icon: (
+              <Apple className="w-14 h-14 text-primary-500 mb-4 order rounded-full p-2 bg-secondary-100" />
+            ),
             title: "Cân bằng",
             description:
               "Duy trì sức khỏe và phong độ với chế độ ăn đầy đủ dưỡng chất.",
@@ -85,7 +91,7 @@ export default function WelcomePage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: index * 0.2 }}
-            className="relative bg-white rounded-2xl shadow-lg p-8 flex flex-col items-center text-center border border-primary-100 hover:border-primary-300 hover:bg-primary-50/30 transition-all duration-300 hover:bg-secondary-100 "
+            className="relative rounded-2xl shadow-lg p-8 flex flex-col items-center text-center border border-primary hover:border-primary-300 hover:bg-primary-50/30 transition-all duration-300 hover:bg-secondary-100  "
           >
             {benefit.icon}
             <h3 className="text-2xl font-bold text-primary-600 mb-3">
@@ -99,7 +105,7 @@ export default function WelcomePage() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-gradient-to-r from-primary-900 to-secondary-900 py-10 text-center">
+      <footer className="bg-gradient-to-r bg-primary-900 py-10 text-center">
         <div className="flex justify-center gap-6 mb-4">
           <motion.a
             href="#"

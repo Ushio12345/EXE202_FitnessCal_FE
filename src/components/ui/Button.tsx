@@ -23,22 +23,23 @@ export const Button: React.FC<ButtonProps> = ({
   ...props
 }) => {
   const baseStyles =
-    "w-full inline-flex items-center justify-center rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed";
+    "w-full inline-flex items-center justify-center rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm";
 
   const variants = {
     primary:
-      "bg-primary-800 text-white hover:bg-primary-700 focus:ring-primary-500",
+      "bg-primary text-primary-foreground hover:bg-secondary focus:ring-primary",
     secondary:
-      "bg-secondary-800 text-white hover:bg-secondary-700 focus:ring-secondary-500",
-    danger: "bg-red-600 text-white hover:bg-red-700 focus:ring-red-500",
+      "bg-secondary text-secondary-foreground hover:bg-secondary-600 focus:ring-secondary",
+    danger:
+      "bg-destructive text-destructive-foreground hover:bg-error-600 focus:ring-error-400",
     success:
-      "bg-success-600 text-white hover:bg-transparent hover:text-black border-2 hover:border-primary focus:ring-success-400 ",
+      "bg-success text-success-foreground hover:bg-transparent hover:text-text-success border-2 hover:border-primary focus:ring-success",
     outline:
-      "border border-primary-400 text-primary-700 bg-transparent hover:bg-secondary-600 hover:text-white focus:ring-primary-300",
+      "border border-primary bg-transparent text-text-primary hover:bg-secondary hover:text-secondary-foreground focus:ring-primary",
     ghost:
-      "text-primary-700 bg-transparent hover:bg-primary-50 focus:ring-primary-300",
+      "text-text-primary bg-transparent hover:bg-primary-50 focus:ring-primary",
     gradient:
-      "bg-gradient-button text-white hover:opacity-90 focus:ring-primary-400",
+      "bg-gradient-button text-white hover:opacity-90 focus:ring-primary",
   };
 
   const sizes = {

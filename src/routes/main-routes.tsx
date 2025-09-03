@@ -1,10 +1,10 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { Suspense } from "react";
-import NotFound from "../pages/not-found/NotFound";
-import LoadingSpinner from "../components/loading/Loading";
+import NotFound from "../pages/not-found/not-found";
+import LoadingSpinner from "../components/loading/loading";
 
-import WelcomePage from "../pages/not-found/welcome-page/WelcomePage";
-import Login from "../pages/login/Login";
+import WelcomePage from "../pages/not-found/welcome-page/welcome-page";
+import Login from "../pages/login/login";
 
 const router = createBrowserRouter([
   {

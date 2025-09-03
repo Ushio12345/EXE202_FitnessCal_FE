@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 
-import LoginForm from "./patials/LoginForm";
-import { LoginIcon } from "../../components/Icon";
+import LoginForm from "./patials/login-form";
+import { LoginIcon } from "../../components/icon";
 
 const Login = () => {
   return (
