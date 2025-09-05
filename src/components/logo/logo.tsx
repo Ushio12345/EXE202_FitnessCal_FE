@@ -9,7 +9,7 @@ const Logo = () => {
       className="flex items-center gap-4 px-6"
     >
       <LoginIcon />
-      <h3 className="font-bold text-2xl text-primary-700">FitnessCall</h3>
+      <h3 className="font-bold text-2xl text-primary-700">FitnessCal</h3>
     </Link>
   );
 };

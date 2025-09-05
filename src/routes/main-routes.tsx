@@ -9,6 +9,7 @@ import ManagePage from "@/pages/manage/manage-page";
 import ROUTE_PATH from "@/types/route-type";
 import ManageLayout from "@/layouts/manager-layout/manage-layout";
 import UserLayout from "@/layouts/user-layout/user-layout";
+import Authenticated from "@/pages/authenticated";
 
 const router = createBrowserRouter([
   {
@@ -39,6 +40,14 @@ const router = createBrowserRouter([
   },
   {
     path: `${ROUTE_PATH.USER_VERIFY_PAGE}`,
+    element: (
+      <Suspense fallback={<LoadingSpinner />}>
+        <Authenticated />
+      </Suspense>
+    ),
+  },
+  {
+    path: `${ROUTE_PATH.USER_LAYOUT}`,
     element: (
       <Suspense fallback={<LoadingSpinner />}>
         <UserLayout />

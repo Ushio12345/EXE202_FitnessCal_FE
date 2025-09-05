@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { useState, type FormEvent } from "react";
+import { useState, type FormEvent, useEffect } from "react";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { Mail, Lock, Loader2 } from "lucide-react";
 import { Button } from "../../../components/ui/button";
@@ -22,6 +22,9 @@ type FormData = {
   password: string;
 };
 export default function LoginForm() {
+  useEffect(() => {
+    document.title = "Đăng nhập | FitnessCal";
+  }, []);
   const {
     register,
     handleSubmit,

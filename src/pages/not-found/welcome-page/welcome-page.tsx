@@ -30,7 +30,7 @@ export default function WelcomePage() {
           className="relative z-10 max-w-4xl mx-auto"
         >
           <h1 className="text-5xl md:text-7xl font-extrabold text-white mb-4 tracking-tight drop-shadow-lg ">
-            FitnessCall
+            FitnessCal
           </h1>
           <p className="text-lg md:text-2xl text-white max-w-3xl mx-auto leading-relaxed drop-shadow-md">
             Ứng dụng gợi ý{" "}
@@ -131,7 +131,7 @@ export default function WelcomePage() {
           </motion.a>
         </div>
         <p className="text-sm text-white font-medium">
-          © 2025 FitnessCall - Eat Clean, Train Hard, Stay Fit.
+          © 2025 FitnessCal - Eat Clean, Train Hard, Stay Fit.
         </p>
       </footer>
     </div>

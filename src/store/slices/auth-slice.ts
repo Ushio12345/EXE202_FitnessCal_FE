@@ -87,7 +87,6 @@ export const fetchUser = createAsyncThunk(
       if (error) return rejectWithValue(error.message);
       return data.session?.user || null;
     } catch (err: any) {
-      return rejectWithValue(err.message || "Có lỗi xảy ra khi fetch user");
     }
   }
 );
