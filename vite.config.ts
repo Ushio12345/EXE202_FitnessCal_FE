@@ -11,4 +11,8 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  server: {
+    port: 3000, // Đặt cổng thành 3000
+    open: true, // Tự động mở trình duyệt khi chạy
+  },
 });

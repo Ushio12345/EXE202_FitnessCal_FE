@@ -1,19 +1,43 @@
 import { motion } from "framer-motion";
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, type FormEvent } from "react";
+import { yupResolver } from "@hookform/resolvers/yup";
 import { Mail, Lock, Loader2 } from "lucide-react";
 import { Button } from "../../../components/ui/button";
-
+import { useForm } from "react-hook-form";
 import { Input } from "../../../components/ui/input";
-import { GoogleIcon } from "../../../components/icon";
+import { DiscordIcon, GoogleIcon } from "../../../components/icon";
+import { useDispatch, useSelector } from "react-redux";
+import { type AppDispatch, type RootState } from "@/store/store";
+import {
+  loginWithDiscord,
+  loginWithEmailPassword,
+  loginWithGoogle,
+} from "@/store/slices/auth-slice";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { schema } from "../schema/login-schema";
 
+type FormData = {
+  email: string;
+  password: string;
+};
 export default function LoginForm() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<FormData>({
+    resolver: yupResolver(schema),
+    defaultValues: { email: "", password: "" },
+  });
 
+  const dispatch = useDispatch<AppDispatch>();
+  const { loading, error } = useSelector((state: RootState) => state.auth);
+
+  const onSubmit = async (data: FormData) => {
+    await dispatch(
+      loginWithEmailPassword({ email: data.email, password: data.password })
+    );
+  };
   return (
     <div className=" ">
       <motion.div
@@ -23,15 +47,12 @@ export default function LoginForm() {
         className="bg-white rounded-2xl shadow-lg p-8 max-w-md w-full border border-primary-100"
       >
         {error && (
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="text-error text-sm mb-4 text-center"
-          >
-            {error}
-          </motion.p>
+          <Alert variant={"destructive"}>
+            <AlertTitle>Đăng nhập thất bại</AlertTitle>
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
         )}
-        <form className="space-y-4">
+        <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
           <div className="space-y-2">
             <label
               htmlFor="signin-email"
@@ -44,13 +65,18 @@ export default function LoginForm() {
               <Input
                 id="signin-email"
                 type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="your@email.com"
-                className=" pl-10 pr-4 py-3 "
-                required
+                {...register("email")}
+                placeholder="emailcuaban@email.com"
+                className="pl-10 pr-4 py-3"
               />
             </div>
+            <span>
+              {errors.email && (
+                <p className="text-error italic text-sm">
+                  {errors.email.message}
+                </p>
+              )}
+            </span>
           </div>
           <div className="space-y-2 relative">
             <label
@@ -64,13 +90,18 @@ export default function LoginForm() {
               <Input
                 id="signin-password"
                 type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Nhập mật khẩu"
-                className=" pl-10 pr-4 py-3 "
-                required
+                {...register("password")}
+                placeholder="*******"
+                className="pl-10"
               />
             </div>
+            <span>
+              {errors.password && (
+                <p className="text-error italic text-sm">
+                  {errors.password.message}
+                </p>
+              )}
+            </span>
           </div>
           <motion.button
             type="submit"
@@ -96,11 +127,18 @@ export default function LoginForm() {
         </div>
         <Button
           variant="outline"
-          className="flex items-center justify-center gap-4"
+          className="flex items-center justify-center gap-4 w-full"
+          disabled={loading}
+          onClick={() => dispatch(loginWithGoogle())}
         >
           <GoogleIcon /> Đăng nhập với Gmail
         </Button>
-        <div id="googleSignInButton" className="flex justify-center"></div>
+        <Button
+          className="flex items-center justify-center gap-4 w-full mt-3 bg-black"
+          onClick={() => dispatch(loginWithDiscord())}
+        >
+          <DiscordIcon /> Đăng nhập với Discord
+        </Button>
       </motion.div>
     </div>
   );

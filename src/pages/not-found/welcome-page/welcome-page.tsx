@@ -7,9 +7,10 @@ import {
   Twitter,
   Facebook,
 } from "lucide-react";
-import Banner from "../../../assets/images/banner.jpg";
-import { Button } from "../../../components/ui/button";
+import Banner from "@/assets/images/banner.jpg";
+
 import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
 
 export default function WelcomePage() {
   const navigate = useNavigate();

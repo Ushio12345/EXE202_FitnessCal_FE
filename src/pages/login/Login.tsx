@@ -1,7 +1,8 @@
 import { motion } from "framer-motion";
 
 import LoginForm from "./patials/login-form";
-import { LoginIcon } from "../../components/icon";
+
+import Logo from "@/components/logo/logo";
 
 const Login = () => {
   return (
@@ -11,10 +12,7 @@ const Login = () => {
       <div className="bg-gradient-login absolute w-[1809px] h-[1100px] rounded-tr-full  blur-3xl -bottom-[500px] -left-[1000px]"></div>
       <header className="p-5">
         {" "}
-        <div className="flex items-center gap-4 px-6">
-          <LoginIcon />
-          <h3 className="font-bold text-2xl text-primary-700">FitnessCall</h3>
-        </div>
+        <Logo />
       </header>
 
       {/* Main */}

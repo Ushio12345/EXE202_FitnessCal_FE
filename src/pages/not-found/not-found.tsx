@@ -1,10 +1,11 @@
+import { Button } from "@/components/ui/button";
 import { Apple, Dumbbell, Home, Utensils } from "lucide-react";
-import { Button } from "../../components/ui/button";
+
 import { Link } from "react-router-dom";
 
 export default function NotFound() {
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4 bg-secondary-50">
+    <div className="min-h-screen bg-background flex items-center justify-center p-4 ">
       <div className="max-w-2xl mx-auto text-center space-y-8">
         <div className="space-y-6">
           <div className="flex justify-center items-center gap-4 text-primary">
