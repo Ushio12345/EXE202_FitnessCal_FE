@@ -8,9 +8,8 @@ import {
   Facebook,
 } from "lucide-react";
 import Banner from "@/assets/images/banner.jpg";
-
-import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 
 export default function WelcomePage() {
   const navigate = useNavigate();
@@ -39,7 +38,7 @@ export default function WelcomePage() {
             </span>{" "}
             cho gymer – giúp bạn chinh phục mục tiêu tập luyện nhanh hơn.
           </p>
-          <motion.button
+          <motion.div
             whileHover={{
               scale: 1.05,
             }}
@@ -53,7 +52,7 @@ export default function WelcomePage() {
             >
               Khám phá ngay
             </Button>
-          </motion.button>
+          </motion.div>
         </motion.div>
         {/* Decorative Element */}
         <div className="absolute bottom-0 right-0 w-40 h-40 bg-primary-50 rounded-full opacity-20 blur-3xl" />

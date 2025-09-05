@@ -23,14 +23,18 @@ export default function AuthenticatedPage() {
         CreatedAt: user.created_at,
       };
       // Xác định provider để gọi đúng API backend
-      const provider = user.app_metadata?.provider || user.raw_app_meta_data?.provider || "google";
+      const provider = user.app_metadata?.provider || "google";
       const apiPath = provider === "discord" ? "/auth/discord-login" : "/auth/google-login";
       try {
         const response = await axiosInstance.post(apiPath, payload);
         if (response.data?.success) {
-          const token = response.data?.data?.accessToken || response.data?.data?.access_token;
+          const token = response.data?.data?.AccessToken || response.data?.data?.accessToken;
+          const refreshToken = response.data?.data?.RefreshToken || response.data?.data?.refreshToken;
           if (token) {
             localStorage.setItem("accessToken", token);
+            if (refreshToken) {
+              localStorage.setItem("refreshToken", refreshToken);
+            }
             navigate("/user");
           } else {
             setError("Đăng nhập thành công nhưng không nhận được access token.");
@@ -39,6 +43,17 @@ export default function AuthenticatedPage() {
           setError(response.data?.message || "Đăng nhập thất bại.");
         }
       } catch (err: any) {
+        console.error("OAuth login error:", err);
+        
+        if (err.response?.status === 409) {
+          setError(err.response?.data?.message || "Email đã được sử dụng để đăng ký. Vui lòng đăng nhập bằng email/password hoặc sử dụng email khác để đăng nhập Google.");
+        } else if (err.response?.status === 401) {
+          setError(err.response?.data?.message || "Tài khoản của bạn đã bị vô hiệu hóa.");
+        } else if (err.response?.status === 500) {
+          setError("Có lỗi xảy ra từ server. Vui lòng thử lại sau.");
+        } else {
+          setError("Có lỗi xảy ra khi đăng nhập. Vui lòng thử lại.");
+        }
       }
     };
     handleOAuthLogin();

@@ -46,6 +46,9 @@ export default function LoginForm() {
     console.log("Login thunk result", result, result.payload);
     if (result.meta.requestStatus === "fulfilled" && result.payload?.access_token) {
       localStorage.setItem("accessToken", result.payload.access_token);
+      if (result.payload?.refresh_token) {
+        localStorage.setItem("refreshToken", result.payload.refresh_token);
+      }
       navigate("/manage");
     }
   };

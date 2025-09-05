@@ -96,10 +96,31 @@ export const logoutUser = createAsyncThunk(
   "auth/logoutUser",
   async (_, { rejectWithValue }) => {
     try {
+      const refreshToken = localStorage.getItem("refreshToken");
+      
+      if (refreshToken) {
+        try {
+          await axiosInstance.post("/auth/logout", refreshToken);
+        } catch (apiError: any) {
+          console.warn("Backend logout failed:", apiError);
+        }
+      }
+      
       const { error } = await supabase.auth.signOut();
       if (error) return rejectWithValue(error.message);
+      
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("refreshToken");
+      
+      window.location.href = "/login";
+      
       return true;
     } catch (err: any) {
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("refreshToken");
+      
+      window.location.href = "/login";
+      
       return rejectWithValue(err.message || "Có lỗi xảy ra khi logout");
     }
   }
@@ -166,7 +187,7 @@ const authSlice = createSlice({
         state.error = null;
       })
       .addCase(fetchUser.fulfilled, (state, action) => {
-        state.user = action.payload;
+        state.user = action.payload as any;
         state.loading = false;
       })
       .addCase(fetchUser.rejected, (state, action) => {
