@@ -7,6 +7,7 @@ import { useForm } from "react-hook-form";
 import { Input } from "../../../components/ui/input";
 import { DiscordIcon, GoogleIcon } from "../../../components/icon";
 import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import { type AppDispatch, type RootState } from "@/store/store";
 import {
   loginWithDiscord,
@@ -33,10 +34,17 @@ export default function LoginForm() {
   const dispatch = useDispatch<AppDispatch>();
   const { loading, error } = useSelector((state: RootState) => state.auth);
 
+  const navigate = useNavigate();
   const onSubmit = async (data: FormData) => {
-    await dispatch(
+    console.log("Submit login form", data);
+    const result = await dispatch(
       loginWithEmailPassword({ email: data.email, password: data.password })
     );
+    console.log("Login thunk result", result, result.payload);
+    if (result.meta.requestStatus === "fulfilled" && result.payload?.access_token) {
+      localStorage.setItem("accessToken", result.payload.access_token);
+      navigate("/manage");
+    }
   };
   return (
     <div className=" ">

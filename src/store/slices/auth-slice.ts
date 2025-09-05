@@ -5,6 +5,7 @@ import {
   createAsyncThunk,
   type PayloadAction,
 } from "@reduxjs/toolkit";
+import axiosInstance from "@/axios/instance";
 
 interface AuthState {
   user: User | null;
@@ -26,7 +27,7 @@ export const loginWithGoogle = createAsyncThunk(
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: "http://localhost:3000/manage",
+          redirectTo: `${import.meta.env.VITE_DOMAIN_URL}/authenticated`,
         },
       });
       if (data) {
@@ -48,7 +49,7 @@ export const loginWithDiscord = createAsyncThunk(
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: "discord",
         options: {
-          redirectTo: "http://localhost:3000/manage",
+          redirectTo: `${import.meta.env.VITE_DOMAIN_URL}/authenticated`,
         },
       });
       if (error) return rejectWithValue(error.message);
@@ -67,16 +68,14 @@ export const loginWithEmailPassword = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
+      const response = await axiosInstance.post("/auth/login", {
         email,
         password,
       });
-
-      if (error) console.error("Lỗi:", error.message);
-      else console.log("Đăng nhập thành công:", data);
-      return data.user;
+  return response.data.data;
     } catch (err: any) {
-      return rejectWithValue(err.message || "Có lỗi xảy ra");
+      const message = err.response?.data?.message || err.message || "Có lỗi xảy ra";
+      return rejectWithValue(message);
     }
   }
 );

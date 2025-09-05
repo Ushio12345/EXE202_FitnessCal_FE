@@ -8,6 +8,7 @@ import LoadingSpinner from "@/components/loading/Loading";
 import ManagePage from "@/pages/manage/manage-page";
 import ROUTE_PATH from "@/types/route-type";
 import ManageLayout from "@/layouts/manager-layout/manage-layout";
+import UserLayout from "@/layouts/user-layout/user-layout";
 
 const router = createBrowserRouter([
   {
@@ -36,6 +37,14 @@ const router = createBrowserRouter([
     ),
     children: [{ index: true, element: <ManagePage /> }],
   },
+  {
+    path: `${ROUTE_PATH.USER_VERIFY_PAGE}`,
+    element: (
+      <Suspense fallback={<LoadingSpinner />}>
+        <UserLayout />
+      </Suspense>
+    ),
+  }
 ]);
 
 export default function MainRoutes() {
