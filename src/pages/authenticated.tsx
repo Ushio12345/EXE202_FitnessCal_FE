@@ -28,25 +28,24 @@ export default function AuthenticatedPage() {
       const apiPath = provider === "discord" ? "/auth/discord-login" : "/auth/google-login";
       try {
         const response = await axiosInstance.post(apiPath, payload);
+        console.log(response.data);
         if (response.data?.success) {
-          const token = response.data?.data?.AccessToken || response.data?.data?.accessToken;
-          const refreshToken = response.data?.data?.RefreshToken || response.data?.data?.refreshToken;
-          
+          const token = response.data?.data?.access_token;
+          const refreshToken = response.data?.data?.refresh_token;
           if (token) {
             localStorage.setItem("accessToken", token);
             if (refreshToken) {
               localStorage.setItem("refreshToken", refreshToken);
             }
-            
-            // Lấy role từ JWT token
             const userRole = getUserRoleFromToken(token);
             console.log("User role from JWT:", userRole);
-            
             // Kiểm tra role và redirect tương ứng
             if (userRole === "Admin" || userRole === "admin") {
               navigate("/admindashboard");
-            } else {
+            } else if (userRole === "User" || userRole === "user") {
               navigate("/user");
+            } else {
+              navigate("/manage");
             }
           } else {
             setError("Đăng nhập thành công nhưng không nhận được access token.");
