@@ -1,3 +1,19 @@
+// Lấy userId (sub) từ accessToken JWT
+export function getUserIdFromToken(token: string): string | null {
+  if (!token) return null;
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    console.log('JWT payload for userId:', payload); // DEBUG
+    return (
+      payload.sub ||
+      payload["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"] ||
+      payload.id ||
+      null
+    );
+  } catch {
+    return null;
+  }
+}
 export const decodeJWT = (token: string) => {
   try {
     const parts = token.split('.');

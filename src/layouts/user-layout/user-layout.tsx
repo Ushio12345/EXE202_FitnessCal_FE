@@ -1,4 +1,5 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 
 const plans = [
   {
@@ -27,6 +28,7 @@ const plans = [
 ];
 
 const UserLayout: React.FC = () => {
+  const navigate = useNavigate();
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 py-10">
       <h1 className="text-3xl font-bold mb-8 text-indigo-700">Chọn gói sử dụng</h1>
@@ -57,6 +59,7 @@ const UserLayout: React.FC = () => {
                   ? "bg-indigo-50 text-indigo-700 border border-indigo-200 hover:bg-indigo-100"
                   : "bg-white text-indigo-700 border border-white hover:bg-indigo-50 shadow"
               }`}
+              onClick={() => plan.price !== 0 ? navigate("/checkout") : undefined}
             >
               {plan.button}
             </button>
