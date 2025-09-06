@@ -9,12 +9,22 @@ import {
 } from "lucide-react";
 import Banner from "@/assets/images/banner.jpg";
 import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router-dom";
+import { Typewriter } from 'react-simple-typewriter';
+
+import { useNavigate, useLocation } from "react-router-dom";
+import { useState } from "react";
 
 export default function WelcomePage() {
   const navigate = useNavigate();
+  const [showPopup, setShowPopup] = useState(false);
   return (
-    <div className="min-h-screen  text-title flex flex-col justify-between">
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="min-h-screen flex flex-col justify-between bg-white"
+    >
+      {/* Hero Section */}
       <section
         className="relative flex flex-col items-center justify-center text-center px-6 py-20 bg-cover bg-center bg-no-repeat"
         style={{
@@ -32,27 +42,63 @@ export default function WelcomePage() {
             FitnessCal
           </h1>
           <p className="text-lg md:text-2xl text-white max-w-3xl mx-auto leading-relaxed drop-shadow-md">
-            Ứng dụng gợi ý{" "}
-            <span className="font-semibold text-success-500">
-              món ăn dinh dưỡng
-            </span>{" "}
-            cho gymer – giúp bạn chinh phục mục tiêu tập luyện nhanh hơn.
+            Ứng dụng gợi ý <span className="font-semibold text-success-500">món ăn dinh dưỡng</span>
+            {" cho "}
+            <span className="font-semibold text-primary-300">
+              <Typewriter
+                words={["gymer", "trẻ em", "người lớn", "người đi làm", "người cao tuổi", "người ăn kiêng"]}
+                loop={0}
+                cursor
+                cursorStyle="|"
+                typeSpeed={140}
+                deleteSpeed={90}
+                delaySpeed={1400}
+              />
+            </span>
+            {" – giúp bạn chinh phục mục tiêu tập luyện nhanh hơn."}
           </p>
-          <motion.div
-            whileHover={{
-              scale: 1.05,
-            }}
-            whileTap={{ scale: 0.95 }}
-          >
-            <Button
-              variant="primary"
-              size="lg"
-              className="mt-5"
-              onClick={() => navigate("/login")}
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mt-5">
+            <motion.div
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
             >
-              Khám phá ngay
-            </Button>
-          </motion.div>
+              <Button
+                variant="primary"
+                size="lg"
+                onClick={() => navigate("/login")}
+              >
+                Khám phá ngay
+              </Button>
+            </motion.div>
+            <motion.div
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <Button
+                variant="outline"
+                size="lg"
+                className="border-primary text-primary bg-white hover:bg-primary-50"
+                onClick={() => setShowPopup(true)}
+              >
+                Tải ngay
+              </Button>
+            </motion.div>
+          </div>
+          {/* Popup thông báo ra mắt */}
+          {showPopup && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+              <div className="bg-white rounded-xl shadow-xl p-8 max-w-sm w-full text-center relative">
+                <div className="text-xl font-bold mb-4 text-primary">Thông báo</div>
+                <div className="mb-6 text-gray-700">
+                  Ứng dụng sẽ được ra mắt và thời gian sắp tới.<br />
+                  Mọi người nhớ cập nhật thông tin về thời điểm ra mắt chính thức ở fanpage của tụi mình nhé!
+                </div>
+                <Button className="w-full bg-primary text-white" onClick={() => setShowPopup(false)}>
+                  Đóng
+                </Button>
+              </div>
+            </div>
+          )}
         </motion.div>
         {/* Decorative Element */}
         <div className="absolute bottom-0 right-0 w-40 h-40 bg-primary-50 rounded-full opacity-20 blur-3xl" />
@@ -133,6 +179,6 @@ export default function WelcomePage() {
           © 2025 FitnessCal - Eat Clean, Train Hard, Stay Fit.
         </p>
       </footer>
-    </div>
+    </motion.div>
   );
 }

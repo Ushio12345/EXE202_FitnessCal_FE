@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { useState, type FormEvent, useEffect } from "react";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { Mail, Lock, Loader2 } from "lucide-react";
+import { useTypewriter, Cursor } from 'react-simple-typewriter';
 import { Button } from "../../../components/ui/button";
 import { useForm } from "react-hook-form";
 import { Input } from "../../../components/ui/input";
@@ -63,6 +64,16 @@ export default function LoginForm() {
       }
     }
   };
+
+  // Typewriter cho placeholder input email
+  const [typewriterText] = useTypewriter({
+    words: ['emailcuaban@email.com', 'example@gmail.com'],
+    loop: true,
+    delaySpeed: 2000,
+    typeSpeed: 60,
+    deleteSpeed: 40,
+  });
+
   return (
     <div className=" ">
       <motion.div
@@ -71,6 +82,13 @@ export default function LoginForm() {
         transition={{ duration: 0.6, ease: "easeOut" }}
         className="bg-white rounded-2xl shadow-lg p-8 max-w-md w-full border border-primary-100"
       >
+        <Button
+          variant="outline"
+          className="mb-6 border-primary text-primary bg-white hover:bg-primary-50 w-full"
+          onClick={() => navigate("/")}
+        >
+          Quay về trang chủ
+        </Button>
         {error && (
           <Alert variant={"destructive"}>
             <AlertTitle>Đăng nhập thất bại</AlertTitle>
@@ -91,7 +109,7 @@ export default function LoginForm() {
                 id="signin-email"
                 type="email"
                 {...register("email")}
-                placeholder="emailcuaban@email.com"
+                placeholder={typewriterText}
                 className="pl-10 pr-4 py-3"
               />
             </div>

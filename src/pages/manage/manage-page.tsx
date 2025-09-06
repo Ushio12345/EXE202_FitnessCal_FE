@@ -1,26 +1,43 @@
 import { motion } from "framer-motion";
+import { useLocation, useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useState, useEffect } from "react";
 import { 
-  BarChart3, 
-  DollarSign, 
-  Users, 
-  Upload, 
-  Filter,
+  BarChart3,
+  DollarSign,
+  Users,
   Bell,
   Settings,
   User,
-  Ban,
-  Loader2,
   AlertCircle,
-  CheckCircle
+  CheckCircle,
+  Sun,
+  Moon
 } from "lucide-react";
+import OverviewSection from "./OverviewSection";
+import RevenueSection from "./RevenueSection";
+import UsersSection from "./UsersSection";
 import axiosInstance from "@/axios/instance";
 import type { Subscription, SubscriptionResponse } from "@/types/subscription-type";
 
 const ManagePage = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  // Logout handler
+  const handleLogout = async () => {
+    try {
+      await axiosInstance.post("/auth/logout");
+      navigate("/");
+    } catch (err) {
+      // Có thể thêm thông báo lỗi nếu cần
+    }
+  };
+
+  // Dark mode state
+  const [darkMode, setDarkMode] = useState<boolean>(false);
+  const toggleDarkMode = () => setDarkMode((prev) => !prev);
   const [selectedMenu, setSelectedMenu] = useState<string>("overview");
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
@@ -131,15 +148,22 @@ const ManagePage = () => {
     }
   };
 
-  return (
-    <div className="h-screen w-screen flex flex-col overflow-x-hidden overflow-y-hidden relative bg-white">
+    return (
+      <motion.div
+        key={location.pathname}
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -30 }}
+        transition={{ duration: 0.5, ease: "easeInOut" }}
+        className={`h-screen w-screen flex flex-col overflow-x-hidden overflow-y-hidden relative ${darkMode ? 'bg-gray-900 text-white' : 'bg-white text-gray-900'}`}
+      >
 
-      <div className="bg-gradient-login absolute w-[1809px] -top-[400px] h-[1100px] rounded-bl-full -right-[900px] blur-3xl opacity-30"></div>
+  <div className={`bg-gradient-login absolute w-[1809px] -top-[400px] h-[1100px] rounded-bl-full -right-[900px] blur-3xl opacity-30 ${darkMode ? 'bg-gradient-to-br from-gray-900 via-indigo-900 to-gray-800' : ''}`}></div>
 
       {/* Notification Toast - Top Right */}
       {error && (
         <div className="fixed top-4 right-4 z-50 animate-in slide-in-from-right-5 duration-300">
-          <Alert className="bg-red-50 border-red-200 text-red-800 max-w-sm">
+          <Alert className={`max-w-sm ${darkMode ? 'bg-red-900 border-red-700 text-red-200' : 'bg-red-50 border-red-200 text-red-800'}`}>
             <AlertCircle className="h-4 w-4" />
             <AlertDescription>{error}</AlertDescription>
           </Alert>
@@ -148,24 +172,32 @@ const ManagePage = () => {
 
       {success && (
         <div className="fixed top-4 right-4 z-50 animate-in slide-in-from-right-5 duration-300">
-          <Alert className="bg-green-50 border-green-200 text-green-800 max-w-sm">
+          <Alert className={`max-w-sm ${darkMode ? 'bg-green-900 border-green-700 text-green-200' : 'bg-green-50 border-green-200 text-green-800'}`}>
             <CheckCircle className="h-4 w-4" />
             <AlertDescription>{success}</AlertDescription>
           </Alert>
         </div>
       )}
-      <div className="bg-gradient-login absolute w-[1809px] h-[1100px] rounded-tr-full blur-3xl -bottom-[500px] -left-[1000px] opacity-30"></div>
+  <div className={`bg-gradient-login absolute w-[1809px] h-[1100px] rounded-tr-full blur-3xl -bottom-[500px] -left-[1000px] opacity-30 ${darkMode ? 'bg-gradient-to-tl from-gray-900 via-indigo-900 to-gray-800' : ''}`}></div>
       
       {/* Header */}
-      <header className="p-5 flex justify-between items-center relative z-10">
+  <header className={`p-5 flex justify-between items-center relative z-10 ${darkMode ? 'bg-gray-950 border-b border-gray-800' : ''}`}> 
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
             <span className="text-white font-bold text-lg">H</span>
           </div>
-          <h1 className="text-xl font-bold text-title">FinessCal Admin</h1>
+          <h1 className={`text-xl font-bold ${darkMode ? 'text-white' : 'text-title'}`}>FitnessCal Admin</h1>
         </div>
-        
-        <div className="flex items-center gap-4">
+  <div className="flex items-center gap-4">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="p-2"
+            onClick={toggleDarkMode}
+            aria-label="Toggle dark mode"
+          >
+            {darkMode ? <Sun className="w-5 h-5 text-yellow-400" /> : <Moon className="w-5 h-5 text-gray-600" />}
+          </Button>
           <Button variant="ghost" size="sm" className="p-2">
             <Bell className="w-5 h-5 text-gray-600" />
           </Button>
@@ -175,50 +207,58 @@ const ManagePage = () => {
           <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center">
             <User className="w-4 h-4 text-gray-600" />
           </div>
+          <Button
+            variant="outline"
+            size="sm"
+            className="border-primary text-primary bg-white hover:bg-primary-50 ml-2"
+            onClick={handleLogout}
+          >
+            Đăng xuất
+          </Button>
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="flex flex-1 relative z-10">
+  <main className={`flex flex-1 relative z-10 ${darkMode ? 'bg-gray-900' : ''}`}>
         {/* Sidebar */}
-        <aside className="w-64 bg-white border-r border-gray-200 p-6">
+  <aside className={`w-64 p-6 border-r ${darkMode ? 'bg-gray-950 border-gray-800' : 'bg-white border-gray-200'}`}>
           <nav className="space-y-2">
             <div 
               className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-colors ${
                 selectedMenu === "overview" 
-                  ? "bg-primary/10 border border-primary/20" 
-                  : "hover:bg-gray-50"
+                  ? darkMode ? "bg-primary/20 border border-primary/30" : "bg-primary/10 border border-primary/20" 
+                  : darkMode ? "hover:bg-gray-800" : "hover:bg-gray-50"
               }`}
               onClick={() => setSelectedMenu("overview")}
             >
-              <BarChart3 className={`w-5 h-5 ${selectedMenu === "overview" ? "text-primary" : "text-gray-600"}`} />
-              <span className={`${selectedMenu === "overview" ? "text-primary font-medium" : "text-gray-700"}`}>
+              <BarChart3 className={`w-5 h-5 ${selectedMenu === "overview" ? "text-primary" : darkMode ? "text-gray-300" : "text-gray-600"}`} />
+              <span className={`${selectedMenu === "overview" ? "text-primary font-medium" : darkMode ? "text-gray-200" : "text-gray-700"}`}>
                 Tổng quan
               </span>
             </div>
             <div 
               className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-colors ${
                 selectedMenu === "revenue" 
-                  ? "bg-primary/10 border border-primary/20" 
-                  : "hover:bg-gray-50"
+                  ? darkMode ? "bg-primary/20 border border-primary/30" : "bg-primary/10 border border-primary/20" 
+                  : darkMode ? "hover:bg-gray-800" : "hover:bg-gray-50"
               }`}
               onClick={() => setSelectedMenu("revenue")}
             >
-              <DollarSign className={`w-5 h-5 ${selectedMenu === "revenue" ? "text-primary" : "text-gray-600"}`} />
-              <span className={`${selectedMenu === "revenue" ? "text-primary font-medium" : "text-gray-700"}`}>
+              <DollarSign className={`w-5 h-5 ${selectedMenu === "revenue" ? "text-primary" : darkMode ? "text-gray-300" : "text-gray-600"}`} />
+              <span className={`${selectedMenu === "revenue" ? "text-primary font-medium" : darkMode ? "text-gray-200" : "text-gray-700"}`}>
                 Doanh thu
               </span>
             </div>
             <div 
               className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-colors ${
                 selectedMenu === "users" 
-                  ? "bg-primary/10 border border-primary/20" 
-                  : "hover:bg-gray-50"
+                  ? darkMode ? "bg-primary/20 border border-primary/30" : "bg-primary/10 border border-primary/20" 
+                  : darkMode ? "hover:bg-gray-800" : "hover:bg-gray-50"
               }`}
               onClick={() => setSelectedMenu("users")}
             >
-              <Users className={`w-5 h-5 ${selectedMenu === "users" ? "text-primary" : "text-gray-600"}`} />
-              <span className={`${selectedMenu === "users" ? "text-primary font-medium" : "text-gray-700"}`}>
+              <Users className={`w-5 h-5 ${selectedMenu === "users" ? "text-primary" : darkMode ? "text-gray-300" : "text-gray-600"}`} />
+              <span className={`${selectedMenu === "users" ? "text-primary font-medium" : darkMode ? "text-gray-200" : "text-gray-700"}`}>
                 Người dùng
               </span>
             </div>
@@ -226,132 +266,31 @@ const ManagePage = () => {
         </aside>
 
         {/* Content Area */}
-        <div className="flex-1 p-6">
+  <div className={`flex-1 p-6 ${darkMode ? 'bg-gray-900' : ''}`}>
           {selectedMenu === "users" && (
-            <>
-              <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-bold text-title">Người dùng</h2>
-                <div className="flex gap-3">
-                  <Button className="bg-primary hover:bg-primary/90 text-white">
-                    <Upload className="w-4 h-4 mr-2" />
-                    Xuất báo cáo
-                  </Button>
-                  <Button variant="outline" className="border-gray-300">
-                    <Filter className="w-4 h-4 mr-2" />
-                    Lọc
-                  </Button>
-                </div>
-              </div>
-
-              {/* User Table */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.2 }}
-              >
-                <Card className="bg-white shadow-lg">
-                  {loading ? (
-                    <div className="flex items-center justify-center p-8">
-                      <Loader2 className="w-6 h-6 animate-spin text-primary" />
-                      <span className="ml-2 text-gray-600">Đang tải dữ liệu...</span>
-                    </div>
-                  ) : error ? (
-                    <div className="p-8 text-center">
-                      <p className="text-red-600 mb-4">{error}</p>
-                      <Button onClick={fetchSubscriptions} className="bg-primary text-white">
-                        Thử lại
-                      </Button>
-                    </div>
-                  ) : subscriptions.length === 0 ? (
-                    <div className="p-8 text-center">
-                      <Users className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                      <p className="text-gray-600">Không có dữ liệu subscription</p>
-                    </div>
-                  ) : (
-                    <div className="overflow-x-auto">
-                      <table className="w-full">
-                      <thead className="bg-gray-50 border-b">
-                        <tr>
-                          <th className="text-left p-4 font-medium text-gray-700">Người dùng</th>
-                          <th className="text-left p-4 font-medium text-gray-700">Gói</th>
-                          <th className="text-left p-4 font-medium text-gray-700">Trạng thái</th>
-                          <th className="text-left p-4 font-medium text-gray-700">Ngày bắt đầu</th>
-                          <th className="text-left p-4 font-medium text-gray-700">Ngày kết thúc</th>
-                          <th className="text-left p-4 font-medium text-gray-700">Giá</th>
-                          <th className="text-left p-4 font-medium text-gray-700">Thao tác</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {subscriptions.map((subscription) => (
-                          <tr key={subscription.subscriptionId} className="border-b hover:bg-gray-50">
-                            <td className="p-4">
-                              <div>
-                                <div className="font-medium text-gray-900">{subscription.userName}</div>
-                                <div className="text-sm text-gray-500">{subscription.userEmail}</div>
-                              </div>
-                            </td>
-                            <td className="p-4">
-                              <span className={`px-3 py-1 rounded-full text-sm font-medium ${getPlanColor(subscription.package.packageType)}`}>
-                                {subscription.package.packageType}
-                              </span>
-                            </td>
-                            <td className="p-4">
-                              <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(subscription.isUserBanned)}`}>
-                                {getStatusText(subscription.isUserBanned)}
-                              </span>
-                            </td>
-                            <td className="p-4 text-gray-700">{formatDate(subscription.startDate)}</td>
-                            <td className="p-4 text-gray-700">{formatDate(subscription.endDate)}</td>
-                            <td className="p-4 text-gray-700">{formatPrice(subscription.priceAtPurchase)}</td>
-                            <td className="p-4">
-                              <Button 
-                                variant="ghost" 
-                                size="sm" 
-                                className={`p-2 ${subscription.isUserBanned ? 'text-green-600 hover:text-green-700' : 'text-red-600 hover:text-red-700'}`}
-                                onClick={() => handleBlockUser(subscription.userId, subscription.isUserBanned)}
-                                disabled={banningUser === subscription.userId}
-                                title={subscription.isUserBanned ? 'Bỏ chặn người dùng' : 'Chặn người dùng'}
-                              >
-                                {banningUser === subscription.userId ? (
-                                  <Loader2 className="w-4 h-4 animate-spin" />
-                                ) : (
-                                  <Ban className="w-4 h-4" />
-                                )}
-                              </Button>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                    </div>
-                  )}
-                </Card>
-              </motion.div>
-            </>
+            <UsersSection
+              subscriptions={subscriptions}
+              loading={loading}
+              error={error}
+              success={success}
+              banningUser={banningUser}
+              fetchSubscriptions={fetchSubscriptions}
+              handleBlockUser={handleBlockUser}
+              getPlanColor={getPlanColor}
+              getStatusColor={getStatusColor}
+              getStatusText={getStatusText}
+              formatDate={formatDate}
+              formatPrice={formatPrice}
+              darkMode={darkMode}
+            />
           )}
 
-          {selectedMenu === "overview" && (
-            <div className="flex items-center justify-center h-full">
-              <div className="text-center">
-                <BarChart3 className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-xl font-semibold text-gray-600 mb-2">Tổng quan</h3>
-                <p className="text-gray-500">Chọn một menu để xem thông tin chi tiết</p>
-              </div>
-            </div>
-          )}
+          {selectedMenu === "overview" && <OverviewSection />}
 
-          {selectedMenu === "revenue" && (
-            <div className="flex items-center justify-center h-full">
-              <div className="text-center">
-                <DollarSign className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-xl font-semibold text-gray-600 mb-2">Doanh thu</h3>
-                <p className="text-gray-500">Chọn một menu để xem thông tin chi tiết</p>
-              </div>
-            </div>
-          )}
+          {selectedMenu === "revenue" && <RevenueSection />}
         </div>
       </main>
-    </div>
+  </motion.div>
   );
 };
 

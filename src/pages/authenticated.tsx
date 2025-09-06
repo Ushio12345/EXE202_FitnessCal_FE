@@ -3,13 +3,17 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/../supabaseClient";
 import axiosInstance from "@/axios/instance";
 import { getUserRoleFromToken } from "@/lib/utils/jwt";
+import { AnimatePresence, motion } from "framer-motion";
+import { useLocation } from "react-router-dom";
 
 export default function AuthenticatedPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const handleOAuthLogin = async () => {
+      await new Promise((resolve) => setTimeout(resolve, 500)); // Dừng 0.5s
       const { data, error } = await supabase.auth.getSession();
       if (error || !data.session?.user) {
         setError("Không lấy được thông tin người dùng từ Supabase.");
@@ -55,7 +59,6 @@ export default function AuthenticatedPage() {
         }
       } catch (err: any) {
         console.error("OAuth login error:", err);
-        
         if (err.response?.status === 409) {
           setError(err.response?.data?.message || "Email đã được sử dụng để đăng ký. Vui lòng đăng nhập bằng email/password hoặc sử dụng email khác để đăng nhập Google.");
         } else if (err.response?.status === 401) {
@@ -71,12 +74,21 @@ export default function AuthenticatedPage() {
   }, [navigate]);
 
   return (
-    <div className="flex items-center justify-center min-h-screen">
-      {error ? (
-        <div className="text-lg font-semibold text-red-600">{error}</div>
-      ) : (
-        <div className="text-lg font-semibold">Đang xác thực tài khoản...</div>
-      )}
-    </div>
+    <AnimatePresence mode="wait">
+      <motion.div
+        key={location.pathname}
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -30 }}
+        transition={{ duration: 0.5, ease: "easeInOut" }}
+        className="flex items-center justify-center min-h-screen"
+      >
+        {error ? (
+          <div className="text-lg font-semibold text-red-600">{error}</div>
+        ) : (
+          <div className="text-lg font-semibold">Đang xác thực tài khoản...</div>
+        )}
+      </motion.div>
+    </AnimatePresence>
   );
 }

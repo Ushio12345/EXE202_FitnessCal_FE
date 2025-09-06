@@ -1,5 +1,6 @@
 import "./styles/index.css";
 import MainRoutes from "./routes/main-routes";
+import { AnimatePresence } from "framer-motion";
 import { useAuth } from "./hooks/useAuth";
 import LoadingSpinner from "./components/loading/Loading";
 
@@ -14,9 +15,9 @@ const App = () => {
   //     </div>
   //   );
   return (
-    <div>
+    <AnimatePresence mode="wait">
       <MainRoutes />
-    </div>
+    </AnimatePresence>
   );
 };
 
