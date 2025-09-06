@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/../supabaseClient";
 import axiosInstance from "@/axios/instance";
+import { getUserRoleFromToken } from "@/lib/utils/jwt";
 
 export default function AuthenticatedPage() {
   const navigate = useNavigate();
@@ -30,12 +31,23 @@ export default function AuthenticatedPage() {
         if (response.data?.success) {
           const token = response.data?.data?.AccessToken || response.data?.data?.accessToken;
           const refreshToken = response.data?.data?.RefreshToken || response.data?.data?.refreshToken;
+          
           if (token) {
             localStorage.setItem("accessToken", token);
             if (refreshToken) {
               localStorage.setItem("refreshToken", refreshToken);
             }
-            navigate("/user");
+            
+            // Lấy role từ JWT token
+            const userRole = getUserRoleFromToken(token);
+            console.log("User role from JWT:", userRole);
+            
+            // Kiểm tra role và redirect tương ứng
+            if (userRole === "Admin" || userRole === "admin") {
+              navigate("/admindashboard");
+            } else {
+              navigate("/user");
+            }
           } else {
             setError("Đăng nhập thành công nhưng không nhận được access token.");
           }

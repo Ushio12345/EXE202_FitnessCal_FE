@@ -15,6 +15,7 @@ import {
   loginWithGoogle,
 } from "@/store/slices/auth-slice";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { getUserRoleFromToken } from "@/lib/utils/jwt";
 import { schema } from "../schema/login-schema";
 
 type FormData = {
@@ -49,7 +50,17 @@ export default function LoginForm() {
       if (result.payload?.refresh_token) {
         localStorage.setItem("refreshToken", result.payload.refresh_token);
       }
-      navigate("/manage");
+      
+      // Lấy role từ JWT token
+      const userRole = getUserRoleFromToken(result.payload.access_token);
+      console.log("User role from JWT:", userRole);
+      
+      // Kiểm tra role và redirect tương ứng
+      if (userRole === "Admin" || userRole === "admin") {
+        navigate("/admindashboard");
+      } else {
+        navigate("/user");
+      }
     }
   };
   return (
