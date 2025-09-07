@@ -1,17 +1,50 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axiosInstance from "@/axios/instance";
 import { getUserIdFromToken } from "@/lib/utils/jwt";
 
-const plans = [
-  { label: "1 tháng", value: 1, price: 59000 },
-  { label: "3 tháng", value: 3, price: 169000 },
-  { label: "6 tháng", value: 6, price: 319000 },
-];
+
+interface Plan {
+  packageId: number;
+  name: string;
+  durationMonths: number;
+  price: number;
+}
 
 const CheckoutPage: React.FC = () => {
-  const [selected, setSelected] = useState(1);
+  const [plans, setPlans] = useState<Plan[]>([]);
+  const [selected, setSelected] = useState<number | null>(null);
+  const [showAlert, setShowAlert] = useState(false);
+  const [countdown, setCountdown] = useState(5);
+  const [redirectUrl, setRedirectUrl] = useState<string | null>(null);
+  // Lấy danh sách plans từ API
+  useEffect(() => {
+    const fetchPlans = async () => {
+      try {
+        const res = await axiosInstance.get("/premium-packages");
+        if (Array.isArray(res.data)) {
+          // Loại bỏ gói Free
+          const filtered = res.data.filter((p: any) => p.price > 0);
+          setPlans(filtered);
+          if (filtered.length > 0) setSelected(filtered[0].packageId);
+        }
+      } catch (err) {
+        setPlans([]);
+      }
+    };
+    fetchPlans();
+  }, []);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    if (showAlert && countdown > 0) {
+      timer = setTimeout(() => setCountdown(c => c - 1), 1000);
+    } else if (showAlert && countdown === 0 && redirectUrl) {
+      window.location.href = redirectUrl;
+    }
+    return () => clearTimeout(timer);
+  }, [showAlert, countdown, redirectUrl]);
 
   const handleCheckout = async () => {
     // Lấy userId hệ thống từ supabaseId nếu cần
@@ -41,16 +74,16 @@ const CheckoutPage: React.FC = () => {
       alert("Không xác định được người dùng.");
       return;
     }
-    // Xác định packageId theo selected
-    let packageId = 1;
-    if (selected === 3) packageId = 2;
-    if (selected === 6) packageId = 3;
+  // Xác định packageId theo selected
+  const packageId = selected;
     try {
-  const res = await axiosInstance.post(`/payments/buy-package?packageId=${packageId}`);
+      const res = await axiosInstance.post(`/payments/buy-package?packageId=${packageId}`);
       if (res.data?.success) {
         const checkoutUrl = res.data?.data?.CheckoutUrl || res.data?.data?.checkoutUrl;
         if (checkoutUrl) {
-          window.location.href = checkoutUrl;
+          setRedirectUrl(checkoutUrl);
+          setShowAlert(true);
+          setCountdown(5);
         } else {
           alert("Đặt mua thành công! Không tìm thấy link thanh toán.");
         }
@@ -62,36 +95,55 @@ const CheckoutPage: React.FC = () => {
     }
   };
 
-  return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 py-10">
-      <div className="bg-white rounded-2xl shadow-lg p-8 max-w-md w-full border border-primary-100">
+    return (
+    <div className="min-h-screen flex flex-col items-center justify-center relative" style={{
+        background: "radial-gradient(ellipse 80% 80% at 60% 20%, #fff 40%, #312e81 100%)"
+      }}>
+        {/* Alert đếm ngược khi thanh toán thành công */}
+        {showAlert && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
+            <div className="bg-white rounded-xl shadow-lg px-8 py-6 flex flex-col items-center border border-indigo-200 animate-fade-in">
+              <div className="text-xl font-bold text-indigo-700 mb-2">Đang chuyển hướng đến cổng thanh toán...</div>
+              <div className="text-lg text-gray-700 mb-2">Vui lòng chờ <span className="font-semibold text-indigo-600">{countdown}s</span></div>
+              <div className="text-sm text-gray-400">Không tắt trình duyệt hoặc reload trang trong quá trình này.</div>
+            </div>
+          </div>
+        )}
+        <div className="bg-white rounded-2xl shadow-lg p-10 max-w-3xl w-full border border-primary-100 flex flex-col items-center">
         <h1 className="text-2xl font-bold mb-6 text-indigo-700 text-center">Nâng cấp Premium</h1>
-        <div className="mb-6">
-          <label className="block font-medium mb-2 text-gray-700">Chọn gói nâng cấp:</label>
-          <div className="flex flex-col gap-3">
+        <div className="mb-8 w-full">
+          <label className="block font-medium mb-6 text-gray-700 text-center text-xl">Chọn gói nâng cấp:</label>
+          <div className="flex flex-col md:flex-row gap-8 justify-center w-full">
             {plans.map((plan) => {
-              const originalPrice = plan.value * 59000;
-              const isSale = plan.value > 1 && plan.price < originalPrice;
+              const basePlan = plans.find(p => p.durationMonths === 1);
+              const basePrice = basePlan ? basePlan.price : 59000;
+              const originalPrice = plan.durationMonths * basePrice;
+              const isSale = plan.durationMonths > 1 && plan.price < originalPrice;
+              const isSelected = selected === plan.packageId;
               return (
-                <label key={plan.value} className={`flex items-center p-3 rounded-lg border cursor-pointer transition-colors ${selected === plan.value ? 'border-indigo-500 bg-indigo-50' : 'border-gray-200 bg-white hover:bg-gray-50'}`}>
-                  <input
-                    type="radio"
-                    name="plan"
-                    value={plan.value}
-                    checked={selected === plan.value}
-                    onChange={() => setSelected(plan.value)}
-                    className="mr-3 accent-indigo-600"
-                  />
-                  <span className="flex-1 font-semibold">{plan.label}</span>
-                  <span className="flex flex-col items-end">
+                <div
+                  key={plan.packageId}
+                  className={`w-72 h-64 rounded-2xl border-2 p-8 flex flex-col items-center shadow transition-transform cursor-pointer select-none
+                    ${isSelected ? 'border-indigo-600 bg-indigo-50 scale-105' : 'border-gray-200 bg-white hover:scale-105'}`}
+                  onClick={() => setSelected(plan.packageId)}
+                >
+                  <div className="text-2xl font-bold mb-3 text-indigo-700">{plan.durationMonths} tháng</div>
+                  <div className="mb-6 flex flex-col items-center">
                     {isSale && (
-                      <span className="text-gray-400 text-sm line-through mb-0.5">
+                      <span className="text-gray-400 text-base line-through mb-1">
                         {originalPrice.toLocaleString('vi-VN')}₫
                       </span>
                     )}
-                    <span className="font-bold text-indigo-700">{plan.price.toLocaleString('vi-VN')}₫</span>
-                  </span>
-                </label>
+                    <span className="font-bold text-3xl text-indigo-700">{plan.price.toLocaleString('vi-VN')}₫</span>
+                  </div>
+                  <button
+                    className={`mt-auto w-full py-3 rounded-lg font-semibold text-lg transition-colors duration-200
+                      ${isSelected ? 'bg-indigo-600 text-white' : 'bg-indigo-100 text-indigo-700 hover:bg-indigo-200'}`}
+                    onClick={e => { e.stopPropagation(); setSelected(plan.packageId); }}
+                  >
+                    {isSelected ? 'Đã chọn' : 'Chọn gói này'}
+                  </button>
+                </div>
               );
             })}
           </div>

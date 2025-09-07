@@ -10,7 +10,9 @@ import ROUTE_PATH from "@/types/route-type";
 import ManageLayout from "@/layouts/manager-layout/manage-layout";
 import UserLayout from "@/layouts/user-layout/user-layout";
 import Authenticated from "@/pages/authenticated";
+
 import CheckoutPage from "@/pages/checkout/CheckoutPage";
+import UserPlanPage from "@/pages/user/UserPlanPage";
 
 const router = createBrowserRouter([
   {
@@ -58,6 +60,10 @@ const router = createBrowserRouter([
   {
     path: "/checkout",
     element: <CheckoutPage />,
+  },
+  {
+    path: "/plan",
+    element: <UserPlanPage />,
   },
 ]);
 

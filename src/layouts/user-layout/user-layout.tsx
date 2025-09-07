@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 const plans = [
@@ -27,10 +27,38 @@ const plans = [
   },
 ];
 
+import { getUserIdFromToken } from "@/lib/utils/jwt";
+import axiosInstance from "@/axios/instance";
+
 const UserLayout: React.FC = () => {
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const checkSubscription = async () => {
+      const accessToken = localStorage.getItem("accessToken");
+      if (!accessToken) return;
+      let userId;
+      try {
+        const payload = JSON.parse(atob(accessToken.split(".")[1]));
+        userId = payload["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"] || getUserIdFromToken(accessToken);
+      } catch {
+        userId = getUserIdFromToken(accessToken);
+      }
+      if (!userId) return;
+      try {
+        const res = await axiosInstance.get(`/Subscription/${userId}`);
+        if (res.data?.success && res.data?.data) {
+          navigate("/plan", { replace: true });
+        }
+      } catch {}
+    };
+    checkSubscription();
+  }, [navigate]);
+
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 py-10">
+    <div className="min-h-screen flex flex-col items-center justify-center py-10" style={{
+      background: "radial-gradient(ellipse 80% 80% at 60% 20%, #fff 40%, #312e81 100%)"
+    }}>
       <h1 className="text-3xl font-bold mb-8 text-indigo-700">Chọn gói sử dụng</h1>
       <div className="flex flex-col md:flex-row gap-8">
         {plans.map((plan) => (
@@ -59,7 +87,7 @@ const UserLayout: React.FC = () => {
                   ? "bg-indigo-50 text-indigo-700 border border-indigo-200 hover:bg-indigo-100"
                   : "bg-white text-indigo-700 border border-white hover:bg-indigo-50 shadow"
               }`}
-              onClick={() => plan.price !== 0 ? navigate("/checkout") : undefined}
+              onClick={() => plan.price !== 0 ? navigate("/checkout") : navigate("/plan")}
             >
               {plan.button}
             </button>
