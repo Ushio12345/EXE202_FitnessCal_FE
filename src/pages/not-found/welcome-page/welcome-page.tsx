@@ -12,9 +12,12 @@ import { Button } from "@/components/ui/button";
 import { Typewriter } from 'react-simple-typewriter';
 
 import { useNavigate, useLocation } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function WelcomePage() {
+  useEffect(() => {
+    document.title = "Trang chủ | FitnessCal";
+  }, []);
   const navigate = useNavigate();
   const [showPopup, setShowPopup] = useState(false);
   return (
@@ -87,13 +90,13 @@ export default function WelcomePage() {
           {/* Popup thông báo ra mắt */}
           {showPopup && (
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-              <div className="bg-white rounded-xl shadow-xl p-8 max-w-sm w-full text-center relative">
-                <div className="text-xl font-bold mb-4 text-primary">Thông báo</div>
-                <div className="mb-6 text-gray-700">
-                  Ứng dụng sẽ được ra mắt và thời gian sắp tới.<br />
+              <div className="bg-white rounded-2xl shadow-2xl p-12 max-w-lg w-full text-center relative">
+                <div className="text-2xl font-bold mb-6 text-primary">Thông báo</div>
+                <div className="mb-8 text-gray-700 text-lg leading-relaxed">
+                  Ứng dụng sẽ được ra mắt vào thời gian sắp tới.<br />
                   Mọi người nhớ cập nhật thông tin về thời điểm ra mắt chính thức ở fanpage của tụi mình nhé!
                 </div>
-                <Button className="w-full bg-primary text-white" onClick={() => setShowPopup(false)}>
+                <Button className="w-full bg-primary text-white py-3 text-lg rounded-xl" onClick={() => setShowPopup(false)}>
                   Đóng
                 </Button>
               </div>

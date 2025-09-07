@@ -4,5 +4,6 @@ const ROUTE_PATH = {
   MANAGE_PAGE: "/admindashboard",
   USER_VERIFY_PAGE: "/authenticated",
   USER_LAYOUT: "/user",
+  FORGOT_PASSWORD: "/forgot-password",
 };
 export default ROUTE_PATH;

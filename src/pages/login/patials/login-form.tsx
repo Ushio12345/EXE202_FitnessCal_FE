@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { useState, type FormEvent, useEffect } from "react";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { Mail, Lock, Loader2 } from "lucide-react";
+import { Mail, Lock, Loader2, Eye, EyeOff } from "lucide-react";
 import { useTypewriter, Cursor } from 'react-simple-typewriter';
 import { Button } from "../../../components/ui/button";
 import { useForm } from "react-hook-form";
@@ -9,6 +9,7 @@ import { Input } from "../../../components/ui/input";
 import { DiscordIcon, GoogleIcon } from "../../../components/icon";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+
 import { type AppDispatch, type RootState } from "@/store/store";
 import {
   loginWithDiscord,
@@ -24,6 +25,28 @@ type FormData = {
   password: string;
 };
 export default function LoginForm() {
+  const [showPassword, setShowPassword] = useState(false);
+  const [pendingPaymentUrl, setPendingPaymentUrl] = useState<string | null>(null);
+  const [pendingExpiresAt, setPendingExpiresAt] = useState<number | null>(null);
+  const [pendingCountdown, setPendingCountdown] = useState<string>("");
+
+  // Countdown for pending payment
+  useEffect(() => {
+    if (!pendingExpiresAt) return;
+    const updateCountdown = () => {
+      const ms = pendingExpiresAt - Date.now();
+      if (ms > 0) {
+        const min = Math.floor(ms / 60000);
+        const sec = Math.floor((ms % 60000) / 1000);
+        setPendingCountdown(`${min}:${sec.toString().padStart(2, '0')}`);
+      } else {
+        setPendingCountdown("0:00");
+      }
+    };
+    updateCountdown();
+    const timer = setInterval(updateCountdown, 1000);
+    return () => clearInterval(timer);
+  }, [pendingExpiresAt]);
   useEffect(() => {
     document.title = "Đăng nhập | FitnessCal";
   }, []);
@@ -51,11 +74,32 @@ export default function LoginForm() {
       if (result.payload?.refresh_token) {
         localStorage.setItem("refreshToken", result.payload.refresh_token);
       }
-      
       // Lấy role từ JWT token
       const userRole = getUserRoleFromToken(result.payload.access_token);
       console.log("User role from JWT:", userRole);
-      
+
+      // Check for pending payment for this user
+      try {
+        const token = result.payload.access_token;
+        const payload = token ? JSON.parse(atob(token.split('.')[1])) : null;
+        const userId = payload && (payload.sub || payload["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"] || payload.id);
+        if (userId) {
+          const pendingKey = `pendingPayment_${userId}`;
+          const pending = localStorage.getItem(pendingKey);
+          if (pending) {
+            const { url, expiresAt } = JSON.parse(pending);
+            if (url && expiresAt && Date.now() < expiresAt) {
+              setPendingPaymentUrl(url);
+              setPendingExpiresAt(expiresAt);
+              // Không redirect ngay, show popup ở dưới
+              return;
+            } else {
+              localStorage.removeItem(pendingKey);
+            }
+          }
+        }
+      } catch {}
+
       // Kiểm tra role và redirect tương ứng
       if (userRole === "Admin" || userRole === "admin") {
         navigate("/admindashboard");
@@ -67,7 +111,7 @@ export default function LoginForm() {
 
   // Typewriter cho placeholder input email
   const [typewriterText] = useTypewriter({
-    words: ['emailcuaban@email.com', 'example@gmail.com'],
+    words: ['emailcuaban@gmail.com', 'example@gmail.com'],
     loop: true,
     delaySpeed: 2000,
     typeSpeed: 60,
@@ -76,6 +120,30 @@ export default function LoginForm() {
 
   return (
     <div className=" ">
+      {/* Popup nếu có pending payment sau login */}
+      {pendingPaymentUrl && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
+          <div className="bg-white rounded-xl shadow-lg px-8 py-6 flex flex-col items-center border border-yellow-300 animate-fade-in">
+            <div className="text-xl font-bold text-yellow-700 mb-2">Bạn có đơn hàng đang xử lý</div>
+            <div className="text-base text-gray-700 mb-2">Vui lòng hoàn tất thanh toán hoặc đợi đơn hàng được xử lý.</div>
+            <div className="text-sm text-gray-500 mb-4">Thời gian còn lại: <span className="font-semibold">{pendingCountdown}</span></div>
+            <a
+              href={pendingPaymentUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-6 py-3 bg-yellow-500 text-white rounded-lg font-semibold text-lg hover:bg-yellow-600 transition-all duration-300 mb-2"
+            >
+              Đến trang thanh toán
+            </a>
+            <button
+              className="w-full py-2 bg-gray-100 text-yellow-700 rounded-lg font-medium hover:bg-gray-200 transition-all duration-200"
+              onClick={() => setPendingPaymentUrl(null)}
+            >
+              Đóng
+            </button>
+          </div>
+        </div>
+      )}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -132,19 +200,36 @@ export default function LoginForm() {
               <Lock className="w-5 h-5 text-primary-500 absolute left-3 top-1/2 transform -translate-y-1/2" />
               <Input
                 id="signin-password"
-                type="password"
+                type={showPassword ? "text" : "password"}
                 {...register("password")}
                 placeholder="*******"
-                className="pl-10"
+                className="pl-10 pr-10"
               />
+              <button
+                type="button"
+                tabIndex={-1}
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-primary-500 focus:outline-none"
+                onClick={() => setShowPassword(v => !v)}
+                aria-label={showPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
+              >
+                {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+              </button>
             </div>
-            <span>
-              {errors.password && (
-                <p className="text-error italic text-sm">
-                  {errors.password.message}
-                </p>
-              )}
-            </span>
+            <div className="flex justify-between items-center mt-1">
+              <span>
+                {errors.password && (
+                  <p className="text-error italic text-sm">
+                    {errors.password.message}
+                  </p>
+                )}
+              </span>
+              <a
+                href="/forgot-password"
+                className="text-primary-600 text-sm font-medium hover:underline ml-auto"
+              >
+                Quên mật khẩu?
+              </a>
+            </div>
           </div>
           <motion.button
             type="submit"

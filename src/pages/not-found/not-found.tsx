@@ -2,8 +2,12 @@ import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { useLocation, Link } from "react-router-dom";
 import { Apple, Dumbbell, Home, Utensils } from "lucide-react";
+import { useEffect } from "react";
 
 export default function NotFound() {
+  useEffect(() => {
+    document.title = "404 Not Found | FitnessCal";
+  }, []);
   const location = useLocation();
   return (
     <motion.div

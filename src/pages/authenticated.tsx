@@ -74,21 +74,40 @@ export default function AuthenticatedPage() {
   }, [navigate]);
 
   return (
-    <AnimatePresence mode="wait">
-      <motion.div
-        key={location.pathname}
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: -30 }}
-        transition={{ duration: 0.5, ease: "easeInOut" }}
-        className="flex items-center justify-center min-h-screen"
-      >
-        {error ? (
-          <div className="text-lg font-semibold text-red-600">{error}</div>
-        ) : (
-          <div className="text-lg font-semibold">Đang xác thực tài khoản...</div>
-        )}
-      </motion.div>
-    </AnimatePresence>
+    <div className="h-screen w-screen flex flex-col overflow-x-hidden overflow-y-hidden relative">
+      {/* Background gradient giống login */}
+      <div className="bg-gradient-login absolute w-[1809px] -top-[400px] h-[1100px] rounded-bl-full -right-[900px]  blur-3xl "></div>
+      <div className="bg-gradient-login absolute w-[1809px] h-[1100px] rounded-tr-full  blur-3xl -bottom-[500px] -left-[1000px]"></div>
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={location.pathname}
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -30 }}
+          transition={{ duration: 0.5, ease: "easeInOut" }}
+          className="flex items-center justify-center min-h-screen relative"
+        >
+          {error ? (
+            <div className="bg-white rounded-2xl shadow-lg p-8 max-w-md w-full border border-red-200 flex flex-col items-center animate-fade-in">
+              <svg className="w-14 h-14 text-red-500 mb-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="#fee2e2" /><path strokeLinecap="round" strokeLinejoin="round" d="M15 9l-6 6m0-6l6 6" /></svg>
+              <div className="text-xl font-bold text-red-700 mb-2">Không thể đăng nhập bằng Google</div>
+              <div className="text-base text-gray-700 mb-4 text-center">
+                Email này đã được đăng ký bằng tài khoản thường.<br />
+                Vui lòng đăng nhập bằng email/password hoặc sử dụng email khác để đăng nhập Google.<br />
+                Nếu bạn quên mật khẩu, hãy sử dụng chức năng <a href="/forgot-password" className="text-primary-600 underline font-medium">Quên mật khẩu</a> để đặt lại.<br />
+              </div>
+              <button
+                className="w-full py-3 bg-primary text-white rounded-lg font-semibold text-lg hover:bg-primary-700 transition-all duration-300"
+                onClick={() => navigate('/login')}
+              >
+                Quay lại trang đăng nhập
+              </button>
+            </div>
+          ) : (
+            <div className="text-lg font-semibold">Đang xác thực tài khoản...</div>
+          )}
+        </motion.div>
+      </AnimatePresence>
+    </div>
   );
 }

@@ -12,12 +12,58 @@ interface Plan {
 }
 
 const CheckoutPage: React.FC = () => {
+  useEffect(() => {
+    document.title = "Thanh toán | FitnessCal";
+  }, []);
   const [plans, setPlans] = useState<Plan[]>([]);
   const [selected, setSelected] = useState<number | null>(null);
   const [showAlert, setShowAlert] = useState(false);
   const [countdown, setCountdown] = useState(5);
   const [redirectUrl, setRedirectUrl] = useState<string | null>(null);
   // Lấy danh sách plans từ API
+  // Check for pending payment on mount, show alert with button if exists
+  const [pendingPaymentUrl, setPendingPaymentUrl] = useState<string | null>(null);
+  const [pendingExpiresAt, setPendingExpiresAt] = useState<number | null>(null);
+  const [pendingCountdown, setPendingCountdown] = useState<string>("");
+
+  // Countdown for pending payment
+  useEffect(() => {
+    if (!pendingExpiresAt) return;
+    const updateCountdown = () => {
+      const ms = pendingExpiresAt - Date.now();
+      if (ms > 0) {
+        const min = Math.floor(ms / 60000);
+        const sec = Math.floor((ms % 60000) / 1000);
+        setPendingCountdown(`${min}:${sec.toString().padStart(2, '0')}`);
+      } else {
+        setPendingCountdown("0:00");
+      }
+    };
+    updateCountdown();
+    const timer = setInterval(updateCountdown, 1000);
+    return () => clearInterval(timer);
+  }, [pendingExpiresAt]);
+  useEffect(() => {
+    const accessToken = localStorage.getItem("accessToken");
+    const userId = accessToken ? getUserIdFromToken(accessToken) : null;
+    if (!userId) return;
+    const pendingKey = `pendingPayment_${userId}`;
+    const pending = localStorage.getItem(pendingKey);
+    if (pending) {
+      try {
+        const { url, expiresAt } = JSON.parse(pending);
+        if (url && expiresAt && Date.now() < expiresAt) {
+          console.log('[CheckoutPage] pendingPaymentUrl from localStorage:', url);
+          setPendingPaymentUrl(url);
+          setPendingExpiresAt(expiresAt);
+        } else {
+          localStorage.removeItem(pendingKey);
+        }
+      } catch {
+        localStorage.removeItem(pendingKey);
+      }
+    }
+  }, []);
   useEffect(() => {
     const fetchPlans = async () => {
       try {
@@ -48,8 +94,7 @@ const CheckoutPage: React.FC = () => {
 
   const handleCheckout = async () => {
     // Lấy userId hệ thống từ supabaseId nếu cần
-  const accessToken = localStorage.getItem("accessToken");
-  console.log('accessToken in checkout:', accessToken); // DEBUG
+    const accessToken = localStorage.getItem("accessToken");
     if (!accessToken) {
       alert("Bạn cần đăng nhập để thanh toán.");
       return;
@@ -74,23 +119,54 @@ const CheckoutPage: React.FC = () => {
       alert("Không xác định được người dùng.");
       return;
     }
-  // Xác định packageId theo selected
-  const packageId = selected;
+    // Xác định packageId theo selected
+    const packageId = selected;
+    if (!packageId) {
+      alert("Vui lòng chọn gói nâng cấp trước khi thanh toán.");
+      return;
+    }
+    // Kiểm tra pending payment trước khi gọi API
+    const pendingKey = `pendingPayment_${userId}`;
+    const pending = localStorage.getItem(pendingKey);
+    if (pending) {
+      try {
+        const { url, expiresAt } = JSON.parse(pending);
+        if (url && expiresAt && Date.now() < expiresAt) {
+          setPendingPaymentUrl(url);
+          setPendingExpiresAt(expiresAt);
+          // Chỉ hiển thị lại popup, không chuyển hướng, không tạo đơn mới
+          return;
+        } else {
+          localStorage.removeItem(pendingKey);
+        }
+      } catch {
+        localStorage.removeItem(pendingKey);
+      }
+    }
+    // Nếu không có pending hoặc đã hết hạn, gọi API tạo mới
     try {
       const res = await axiosInstance.post(`/payments/buy-package?packageId=${packageId}`);
       if (res.data?.success) {
         const checkoutUrl = res.data?.data?.CheckoutUrl || res.data?.data?.checkoutUrl;
+        console.log('[CheckoutPage] checkoutUrl from API:', checkoutUrl);
         if (checkoutUrl) {
           setRedirectUrl(checkoutUrl);
           setShowAlert(true);
           setCountdown(5);
+          // Store pending payment in localStorage for 30 minutes
+          localStorage.setItem(pendingKey, JSON.stringify({
+            url: checkoutUrl,
+            expiresAt: Date.now() + 30 * 60 * 1000 // 30 minutes
+          }));
         } else {
           alert("Đặt mua thành công! Không tìm thấy link thanh toán.");
         }
       } else {
+        console.error('Lỗi backend:', res.data);
         alert(res.data?.message || "Có lỗi xảy ra khi mua gói.");
       }
     } catch (err: any) {
+      console.error('Lỗi khi gọi API:', err);
       alert(err?.response?.data?.message || "Có lỗi xảy ra khi mua gói.");
     }
   };
@@ -106,6 +182,30 @@ const CheckoutPage: React.FC = () => {
               <div className="text-xl font-bold text-indigo-700 mb-2">Đang chuyển hướng đến cổng thanh toán...</div>
               <div className="text-lg text-gray-700 mb-2">Vui lòng chờ <span className="font-semibold text-indigo-600">{countdown}s</span></div>
               <div className="text-sm text-gray-400">Không tắt trình duyệt hoặc reload trang trong quá trình này.</div>
+            </div>
+          </div>
+        )}
+        {/* Alert nếu có pending payment */}
+        {pendingPaymentUrl && !showAlert && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
+            <div className="bg-white rounded-xl shadow-lg px-8 py-6 flex flex-col items-center border border-yellow-300 animate-fade-in">
+              <div className="text-xl font-bold text-yellow-700 mb-2">Bạn có đơn hàng đang xử lý</div>
+              <div className="text-base text-gray-700 mb-2">Vui lòng hoàn tất thanh toán hoặc đợi đơn hàng được xử lý.</div>
+              <div className="text-sm text-gray-500 mb-4">Thời gian còn lại: <span className="font-semibold">{pendingCountdown}</span></div>
+              <a
+                href={pendingPaymentUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-6 py-3 bg-yellow-500 text-white rounded-lg font-semibold text-lg hover:bg-yellow-600 transition-all duration-300 mb-2"
+              >
+                Đến trang thanh toán
+              </a>
+              <button
+                className="w-full py-2 bg-gray-100 text-yellow-700 rounded-lg font-medium hover:bg-gray-200 transition-all duration-200"
+                onClick={() => setPendingPaymentUrl(null)}
+              >
+                Đóng
+              </button>
             </div>
           </div>
         )}

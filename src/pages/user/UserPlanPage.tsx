@@ -19,6 +19,9 @@ const UserPlanPage: React.FC = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    document.title = "Thông tin gói | FitnessCal";
+  }, []);
+  useEffect(() => {
     const fetchUser = async () => {
       const accessToken = localStorage.getItem("accessToken");
       if (!accessToken) {
