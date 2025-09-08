@@ -19,6 +19,7 @@ import {
 import OverviewSection from "./OverviewSection";
 import RevenueSection from "./RevenueSection";
 import UsersSection from "./UsersSection";
+import PlansSection from "./PlansSection";
 import axiosInstance from "@/axios/instance";
 import type { Subscription, SubscriptionResponse } from "@/types/subscription-type";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
@@ -112,7 +113,7 @@ const ManagePage = () => {
   };
 
   const getStatusText = (isUserBanned: boolean) => {
-    return isUserBanned ? "Bị chặn" : "Hoạt động";
+    return isUserBanned ? "Không hoạt động" : "Hoạt động";
   };
 
   const formatPrice = (price: number) => {
@@ -313,6 +314,19 @@ const ManagePage = () => {
                 Người dùng
               </span>
             </div>
+            <div 
+              className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-colors ${
+                selectedMenu === "plans" 
+                  ? darkMode ? "bg-primary/20 border border-primary/30" : "bg-primary/10 border border-primary/20" 
+                  : darkMode ? "hover:bg-gray-800" : "hover:bg-gray-50"
+              }`}
+              onClick={() => setSelectedMenu("plans")}
+            >
+              <DollarSign className={`w-5 h-5 ${selectedMenu === "plans" ? "text-primary" : darkMode ? "text-gray-300" : "text-gray-600"}`} />
+              <span className={`${selectedMenu === "plans" ? "text-primary font-medium" : darkMode ? "text-gray-200" : "text-gray-700"}`}>
+                Giá gói
+              </span>
+            </div>
           </nav>
         </aside>
 
@@ -338,7 +352,9 @@ const ManagePage = () => {
 
           {selectedMenu === "overview" && <OverviewSection darkMode={darkMode} />}
 
-          {selectedMenu === "revenue" && <RevenueSection />}
+          {selectedMenu === "revenue" && <RevenueSection darkMode={darkMode} />}
+
+          {selectedMenu === "plans" && <PlansSection darkMode={darkMode} />}
         </div>
       </main>
   </motion.div>

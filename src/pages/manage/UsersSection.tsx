@@ -47,6 +47,7 @@ const UsersSection = ({
   const PAGE_SIZE = 7;
   const [loadingAll, setLoadingAll] = useState(false);
   const [errorAll, setErrorAll] = useState<string | null>(null);
+  const [banningAllUser, setBanningAllUser] = useState<string | null>(null);
 
   // Fetch all users when tab is 'all'
   useEffect(() => {
@@ -68,6 +69,21 @@ const UsersSection = ({
         .finally(() => setLoadingAll(false));
     }
   }, [tab]);
+
+  const handleBlockUserAll = async (userId: string, isActive: boolean) => {
+    if (banningAllUser === userId) return;
+    try {
+      setBanningAllUser(userId);
+      const action = isActive ? 'ban' : 'unban';
+      const endpoint = `/user/${action}/${userId}`;
+      const res = await axiosInstance.post(endpoint);
+      if (res.data?.success) {
+        setAllUsers(prev => prev.map(u => u.userId === userId ? { ...u, isActive: isActive ? 0 : 1 } : u));
+      }
+    } finally {
+      setBanningAllUser(null);
+    }
+  };
 
   // Reset page when tab changes
   useEffect(() => {
@@ -148,6 +164,7 @@ const UsersSection = ({
                         <th className={`text-left p-4 font-medium sticky top-0 z-10 ${darkMode ? 'bg-gray-900 text-gray-200' : 'bg-gray-50 text-gray-700'}`}>Vai trò</th>
                         <th className={`text-left p-4 font-medium sticky top-0 z-10 ${darkMode ? 'bg-gray-900 text-gray-200' : 'bg-gray-50 text-gray-700'}`}>Trạng thái</th>
                         <th className={`text-left p-4 font-medium sticky top-0 z-10 ${darkMode ? 'bg-gray-900 text-gray-200' : 'bg-gray-50 text-gray-700'}`}>Ngày tạo</th>
+                        <th className={`text-left p-4 font-medium sticky top-0 z-10 ${darkMode ? 'bg-gray-900 text-gray-200' : 'bg-gray-50 text-gray-700'}`}>Thao tác</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -165,6 +182,24 @@ const UsersSection = ({
                             </span>
                           </td>
                           <td className={`p-4 ${darkMode ? 'text-gray-100' : 'text-gray-700'}`}>{user.createdAt ? new Date(user.createdAt).toLocaleDateString('vi-VN') : ''}</td>
+                          <td className="p-4">
+                            <Button 
+                              variant="ghost" 
+                              size="sm" 
+                              className={`p-2 ${user.isActive === 0 
+                                ? darkMode ? 'text-green-400 hover:text-green-300' : 'text-green-600 hover:text-green-700' 
+                                : darkMode ? 'text-red-400 hover:text-red-300' : 'text-red-600 hover:text-red-700'}`}
+                              onClick={() => handleBlockUserAll(user.userId, user.isActive === 1)}
+                              disabled={banningAllUser === user.userId}
+                              title={user.isActive === 1 ? 'Chặn người dùng' : 'Bỏ chặn người dùng'}
+                            >
+                              {banningAllUser === user.userId ? (
+                                <Loader2 className="w-4 h-4 animate-spin" />
+                              ) : (
+                                <Ban className="w-4 h-4" />
+                              )}
+                            </Button>
+                          </td>
                         </tr>
                       ))}
                     </tbody>
