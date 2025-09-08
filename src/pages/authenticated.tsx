@@ -5,6 +5,7 @@ import axiosInstance from "@/axios/instance";
 import { getUserRoleFromToken } from "@/lib/utils/jwt";
 import { AnimatePresence, motion } from "framer-motion";
 import { useLocation } from "react-router-dom";
+import Logo from "@/components/logo/logo";
 
 export default function AuthenticatedPage() {
   const navigate = useNavigate();
@@ -78,6 +79,10 @@ export default function AuthenticatedPage() {
       {/* Background gradient giống login */}
       <div className="bg-gradient-login absolute w-[1809px] -top-[400px] h-[1100px] rounded-bl-full -right-[900px]  blur-3xl "></div>
       <div className="bg-gradient-login absolute w-[1809px] h-[1100px] rounded-tr-full  blur-3xl -bottom-[500px] -left-[1000px]"></div>
+      {/* Logo ở góc trên bên trái */}
+      { <div className="absolute top-5 left-5">
+          <Logo />
+      </div> }
       <AnimatePresence mode="wait">
         <motion.div
           key={location.pathname}
@@ -88,9 +93,10 @@ export default function AuthenticatedPage() {
           className="flex items-center justify-center min-h-screen relative"
         >
           {error ? (
+            
             <div className="bg-white rounded-2xl shadow-lg p-8 max-w-md w-full border border-red-200 flex flex-col items-center animate-fade-in">
               <svg className="w-14 h-14 text-red-500 mb-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="#fee2e2" /><path strokeLinecap="round" strokeLinejoin="round" d="M15 9l-6 6m0-6l6 6" /></svg>
-              <div className="text-xl font-bold text-red-700 mb-2">Không thể đăng nhập bằng Google</div>
+              <div className="text-xl font-bold text-red-700 mb-2">Không thể đăng nhập bằng O2Auth</div>
               <div className="text-base text-gray-700 mb-4 text-center">
                 Email này đã được đăng ký bằng tài khoản thường.<br />
                 Vui lòng đăng nhập bằng email/password hoặc sử dụng email khác để đăng nhập Google.<br />

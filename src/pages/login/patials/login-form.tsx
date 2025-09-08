@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { useState, type FormEvent, useEffect } from "react";
+import Cookies from "js-cookie";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { Mail, Lock, Loader2, Eye, EyeOff } from "lucide-react";
 import { useTypewriter, Cursor } from 'react-simple-typewriter';
@@ -26,44 +27,40 @@ type FormData = {
 };
 export default function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
-  const [pendingPaymentUrl, setPendingPaymentUrl] = useState<string | null>(null);
-  const [pendingExpiresAt, setPendingExpiresAt] = useState<number | null>(null);
-  const [pendingCountdown, setPendingCountdown] = useState<string>("");
-
-  // Countdown for pending payment
-  useEffect(() => {
-    if (!pendingExpiresAt) return;
-    const updateCountdown = () => {
-      const ms = pendingExpiresAt - Date.now();
-      if (ms > 0) {
-        const min = Math.floor(ms / 60000);
-        const sec = Math.floor((ms % 60000) / 1000);
-        setPendingCountdown(`${min}:${sec.toString().padStart(2, '0')}`);
-      } else {
-        setPendingCountdown("0:00");
-      }
-    };
-    updateCountdown();
-    const timer = setInterval(updateCountdown, 1000);
-    return () => clearInterval(timer);
-  }, [pendingExpiresAt]);
   useEffect(() => {
     document.title = "Đăng nhập | FitnessCal";
   }, []);
+
+  // Lưu tài khoản
+  const [saveAccount, setSaveAccount] = useState(false);
+  const savedEmail = Cookies.get("savedEmail") || "";
+  const savedPassword = Cookies.get("savedPassword") || "";
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors },
   } = useForm<FormData>({
     resolver: yupResolver(schema),
-    defaultValues: { email: "", password: "" },
+    defaultValues: { email: savedEmail, password: savedPassword },
   });
+
+  useEffect(() => {
+    if (savedEmail && savedPassword) setSaveAccount(true);
+  }, [savedEmail, savedPassword]);
 
   const dispatch = useDispatch<AppDispatch>();
   const { loading, error } = useSelector((state: RootState) => state.auth);
 
   const navigate = useNavigate();
   const onSubmit = async (data: FormData) => {
+    if (saveAccount) {
+      Cookies.set("savedEmail", data.email, { expires: 7 });
+      Cookies.set("savedPassword", data.password, { expires: 7 });
+    } else {
+      Cookies.remove("savedEmail");
+      Cookies.remove("savedPassword");
+    }
     console.log("Submit login form", data);
     const result = await dispatch(
       loginWithEmailPassword({ email: data.email, password: data.password })
@@ -78,32 +75,31 @@ export default function LoginForm() {
       const userRole = getUserRoleFromToken(result.payload.access_token);
       console.log("User role from JWT:", userRole);
 
-      // Check for pending payment for this user
-      try {
-        const token = result.payload.access_token;
-        const payload = token ? JSON.parse(atob(token.split('.')[1])) : null;
-        const userId = payload && (payload.sub || payload["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"] || payload.id);
-        if (userId) {
-          const pendingKey = `pendingPayment_${userId}`;
-          const pending = localStorage.getItem(pendingKey);
-          if (pending) {
-            const { url, expiresAt } = JSON.parse(pending);
-            if (url && expiresAt && Date.now() < expiresAt) {
-              setPendingPaymentUrl(url);
-              setPendingExpiresAt(expiresAt);
-              // Không redirect ngay, show popup ở dưới
-              return;
-            } else {
-              localStorage.removeItem(pendingKey);
-            }
-          }
-        }
-      } catch {}
+
 
       // Kiểm tra role và redirect tương ứng
       if (userRole === "Admin" || userRole === "admin") {
         navigate("/admindashboard");
       } else {
+        // Kiểm tra gói Premium
+        try {
+          const token = result.payload.access_token;
+          const payload = token ? JSON.parse(atob(token.split('.')[1])) : null;
+          const userId = payload && (payload.sub || payload["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"] || payload.id);
+          if (userId) {
+            const res = await fetch(`${import.meta.env.VITE_API_URL || ""}/Subscription/${userId}`, {
+              headers: { Authorization: `Bearer ${token}` }
+            });
+            if (res.ok) {
+              const data = await res.json();
+              const planType = data?.data?.package?.packageType || "Premium";
+              if (planType === "Premium") {
+                navigate("/plan");
+                return;
+              }
+            }
+          }
+        } catch {}
         navigate("/user");
       }
     }
@@ -121,29 +117,7 @@ export default function LoginForm() {
   return (
     <div className=" ">
       {/* Popup nếu có pending payment sau login */}
-      {pendingPaymentUrl && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
-          <div className="bg-white rounded-xl shadow-lg px-8 py-6 flex flex-col items-center border border-yellow-300 animate-fade-in">
-            <div className="text-xl font-bold text-yellow-700 mb-2">Bạn có đơn hàng đang xử lý</div>
-            <div className="text-base text-gray-700 mb-2">Vui lòng hoàn tất thanh toán hoặc đợi đơn hàng được xử lý.</div>
-            <div className="text-sm text-gray-500 mb-4">Thời gian còn lại: <span className="font-semibold">{pendingCountdown}</span></div>
-            <a
-              href={pendingPaymentUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="px-6 py-3 bg-yellow-500 text-white rounded-lg font-semibold text-lg hover:bg-yellow-600 transition-all duration-300 mb-2"
-            >
-              Đến trang thanh toán
-            </a>
-            <button
-              className="w-full py-2 bg-gray-100 text-yellow-700 rounded-lg font-medium hover:bg-gray-200 transition-all duration-200"
-              onClick={() => setPendingPaymentUrl(null)}
-            >
-              Đóng
-            </button>
-          </div>
-        </div>
-      )}
+
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -216,13 +190,18 @@ export default function LoginForm() {
               </button>
             </div>
             <div className="flex justify-between items-center mt-1">
-              <span>
-                {errors.password && (
-                  <p className="text-error italic text-sm">
-                    {errors.password.message}
-                  </p>
-                )}
-              </span>
+              <div className="flex items-center">
+                <input
+                  id="save-account"
+                  type="checkbox"
+                  checked={saveAccount}
+                  onChange={e => setSaveAccount(e.target.checked)}
+                  className="mr-2 accent-indigo-600 w-4 h-4"
+                />
+                <label htmlFor="save-account" className="text-sm text-gray-700 select-none cursor-pointer">
+                  Lưu tài khoản
+                </label>
+              </div>
               <a
                 href="/forgot-password"
                 className="text-primary-600 text-sm font-medium hover:underline ml-auto"
@@ -230,6 +209,13 @@ export default function LoginForm() {
                 Quên mật khẩu?
               </a>
             </div>
+            <span>
+              {errors.password && (
+                <p className="text-error italic text-sm">
+                  {errors.password.message}
+                </p>
+              )}
+            </span>
           </div>
           <motion.button
             type="submit"

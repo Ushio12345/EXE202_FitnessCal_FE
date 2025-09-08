@@ -52,11 +52,6 @@ const ForgotPassword: React.FC = () => {
       setError("Mật khẩu phải có ít nhất 6 ký tự.");
       return;
     }
-    if (password !== confirmPassword) {
-      setError("Mật khẩu xác nhận không khớp.");
-      return;
-    }
-    setLoading(true);
     try {
       const otpValue = otp.join("");
       // Lấy lại email từ localStorage nếu chưa có

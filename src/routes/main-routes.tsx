@@ -1,9 +1,10 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { Suspense } from "react";
 import NotFound from "../pages/not-found/not-found";
-
+import FAQPage from "../pages/faq/FAQPage";
 import WelcomePage from "../pages/not-found/welcome-page/welcome-page";
 import Login from "../pages/login/login";
+import PolicyPage from "../pages/policy/PolicyPage";
 import LoadingSpinner from "@/components/loading/Loading";
 import ManagePage from "@/pages/manage/manage-page";
 import ROUTE_PATH from "@/types/route-type";
@@ -16,6 +17,14 @@ import CheckoutPage from "@/pages/checkout/CheckoutPage";
 import UserPlanPage from "@/pages/user/UserPlanPage";
 
 const router = createBrowserRouter([
+  {
+    path: "/policy",
+    element: <PolicyPage />,
+  },
+  {
+    path: "/faq",
+    element: <FAQPage />,
+  },
   {
     path: `${ROUTE_PATH.WELCOME_PAGE}`,
     element: (

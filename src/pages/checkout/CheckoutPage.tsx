@@ -172,36 +172,41 @@ const CheckoutPage: React.FC = () => {
   };
 
     return (
-    <div className="min-h-screen flex flex-col items-center justify-center relative" style={{
-        background: "radial-gradient(ellipse 80% 80% at 60% 20%, #fff 40%, #312e81 100%)"
-      }}>
+    <div
+      className="min-h-screen flex flex-col items-center justify-center relative overflow-hidden transition-colors duration-300"
+    >
+      {/* Background gradient for both modes */}
+      <div className="absolute inset-0 -z-10 pointer-events-none">
+        <div className="hidden dark:block w-full h-full" style={{background: 'radial-gradient(ellipse 80% 80% at 60% 20%, #18181b 40%, #312e81 100%)'}}></div>
+        <div className="block dark:hidden w-full h-full" style={{background: 'radial-gradient(ellipse 80% 80% at 60% 20%, #fff 40%, #6366f1 100%)'}}></div>
+      </div>
         {/* Alert đếm ngược khi thanh toán thành công */}
         {showAlert && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
-            <div className="bg-white rounded-xl shadow-lg px-8 py-6 flex flex-col items-center border border-indigo-200 animate-fade-in">
-              <div className="text-xl font-bold text-indigo-700 mb-2">Đang chuyển hướng đến cổng thanh toán...</div>
-              <div className="text-lg text-gray-700 mb-2">Vui lòng chờ <span className="font-semibold text-indigo-600">{countdown}s</span></div>
-              <div className="text-sm text-gray-400">Không tắt trình duyệt hoặc reload trang trong quá trình này.</div>
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 dark:bg-black/60">
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg px-8 py-6 flex flex-col items-center border border-indigo-200 dark:border-indigo-700 animate-fade-in">
+              <div className="text-xl font-bold text-indigo-700 dark:text-indigo-200 mb-2">Đang chuyển hướng đến cổng thanh toán...</div>
+              <div className="text-lg text-gray-700 dark:text-gray-200 mb-2">Vui lòng chờ <span className="font-semibold text-indigo-600 dark:text-indigo-300">{countdown}s</span></div>
+              <div className="text-sm text-gray-400 dark:text-gray-400">Không tắt trình duyệt hoặc reload trang trong quá trình này.</div>
             </div>
           </div>
         )}
         {/* Alert nếu có pending payment */}
         {pendingPaymentUrl && !showAlert && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
-            <div className="bg-white rounded-xl shadow-lg px-8 py-6 flex flex-col items-center border border-yellow-300 animate-fade-in">
-              <div className="text-xl font-bold text-yellow-700 mb-2">Bạn có đơn hàng đang xử lý</div>
-              <div className="text-base text-gray-700 mb-2">Vui lòng hoàn tất thanh toán hoặc đợi đơn hàng được xử lý.</div>
-              <div className="text-sm text-gray-500 mb-4">Thời gian còn lại: <span className="font-semibold">{pendingCountdown}</span></div>
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 dark:bg-black/60">
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg px-8 py-6 flex flex-col items-center border border-yellow-300 dark:border-yellow-500 animate-fade-in">
+              <div className="text-xl font-bold text-yellow-700 dark:text-yellow-400 mb-2">Bạn có đơn hàng đang xử lý</div>
+              <div className="text-base text-gray-700 dark:text-gray-200 mb-2">Vui lòng hoàn tất thanh toán hoặc đợi đơn hàng được xử lý.</div>
+              <div className="text-sm text-gray-500 dark:text-gray-300 mb-4">Thời gian còn lại: <span className="font-semibold">{pendingCountdown}</span></div>
               <a
                 href={pendingPaymentUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="px-6 py-3 bg-yellow-500 text-white rounded-lg font-semibold text-lg hover:bg-yellow-600 transition-all duration-300 mb-2"
+                className="px-6 py-3 bg-yellow-500 text-white rounded-lg font-semibold text-lg hover:bg-yellow-600 dark:bg-yellow-600 dark:hover:bg-yellow-700 transition-all duration-300 mb-2"
               >
                 Đến trang thanh toán
               </a>
               <button
-                className="w-full py-2 bg-gray-100 text-yellow-700 rounded-lg font-medium hover:bg-gray-200 transition-all duration-200"
+                className="w-full py-2 bg-gray-100 dark:bg-gray-700 text-yellow-700 dark:text-yellow-300 rounded-lg font-medium hover:bg-gray-200 dark:hover:bg-gray-800 transition-all duration-200"
                 onClick={() => setPendingPaymentUrl(null)}
               >
                 Đóng
@@ -209,10 +214,10 @@ const CheckoutPage: React.FC = () => {
             </div>
           </div>
         )}
-        <div className="bg-white rounded-2xl shadow-lg p-10 max-w-3xl w-full border border-primary-100 flex flex-col items-center">
-        <h1 className="text-2xl font-bold mb-6 text-indigo-700 text-center">Nâng cấp Premium</h1>
+  <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-10 max-w-3xl w-full border border-primary-100 dark:border-gray-700 flex flex-col items-center transition-colors duration-300">
+  <h1 className="text-2xl font-bold mb-6 text-indigo-700 dark:text-indigo-200 text-center">Nâng cấp Premium</h1>
         <div className="mb-8 w-full">
-          <label className="block font-medium mb-6 text-gray-700 text-center text-xl">Chọn gói nâng cấp:</label>
+          <label className="block font-medium mb-6 text-gray-700 dark:text-gray-200 text-center text-xl">Chọn gói nâng cấp:</label>
           <div className="flex flex-col md:flex-row gap-8 justify-center w-full">
             {plans.map((plan) => {
               const basePlan = plans.find(p => p.durationMonths === 1);
@@ -224,21 +229,25 @@ const CheckoutPage: React.FC = () => {
                 <div
                   key={plan.packageId}
                   className={`w-72 h-64 rounded-2xl border-2 p-8 flex flex-col items-center shadow transition-transform cursor-pointer select-none
-                    ${isSelected ? 'border-indigo-600 bg-indigo-50 scale-105' : 'border-gray-200 bg-white hover:scale-105'}`}
+                    ${isSelected
+                      ? 'border-indigo-600 bg-indigo-50 dark:bg-gray-900 scale-105'
+                      : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 hover:scale-105'}`}
                   onClick={() => setSelected(plan.packageId)}
                 >
-                  <div className="text-2xl font-bold mb-3 text-indigo-700">{plan.durationMonths} tháng</div>
+                  <div className="text-2xl font-bold mb-3 text-indigo-700 dark:text-indigo-200">{plan.durationMonths} tháng</div>
                   <div className="mb-6 flex flex-col items-center">
                     {isSale && (
-                      <span className="text-gray-400 text-base line-through mb-1">
+                      <span className="text-gray-400 dark:text-gray-500 text-base line-through mb-1">
                         {originalPrice.toLocaleString('vi-VN')}₫
                       </span>
                     )}
-                    <span className="font-bold text-3xl text-indigo-700">{plan.price.toLocaleString('vi-VN')}₫</span>
+                    <span className="font-bold text-3xl text-indigo-700 dark:text-indigo-200">{plan.price.toLocaleString('vi-VN')}₫</span>
                   </div>
                   <button
                     className={`mt-auto w-full py-3 rounded-lg font-semibold text-lg transition-colors duration-200
-                      ${isSelected ? 'bg-indigo-600 text-white' : 'bg-indigo-100 text-indigo-700 hover:bg-indigo-200'}`}
+                      ${isSelected
+                        ? 'bg-indigo-600 text-white dark:bg-indigo-700 dark:text-white'
+                        : 'bg-indigo-100 dark:bg-gray-700 text-indigo-700 dark:text-indigo-200 hover:bg-indigo-200 dark:hover:bg-gray-800'}`}
                     onClick={e => { e.stopPropagation(); setSelected(plan.packageId); }}
                   >
                     {isSelected ? 'Đã chọn' : 'Chọn gói này'}
@@ -249,13 +258,13 @@ const CheckoutPage: React.FC = () => {
           </div>
         </div>
         <button
-          className="w-full py-3 bg-indigo-600 text-white rounded-lg font-semibold text-lg hover:bg-indigo-700 transition-all duration-300 mb-3"
+          className="w-full py-3 bg-indigo-600 text-white dark:bg-indigo-700 dark:text-white rounded-lg font-semibold text-lg hover:bg-indigo-700 dark:hover:bg-indigo-800 transition-all duration-300 mb-3"
           onClick={handleCheckout}
         >
           Thanh toán
         </button>
         <button
-          className="w-full py-2 bg-gray-100 text-indigo-700 rounded-lg font-medium hover:bg-gray-200 transition-all duration-200"
+          className="w-full py-2 bg-gray-100 dark:bg-gray-700 text-indigo-700 dark:text-indigo-200 rounded-lg font-medium hover:bg-gray-200 dark:hover:bg-gray-800 transition-all duration-200"
           onClick={() => navigate(-1)}
         >
           Quay lại
