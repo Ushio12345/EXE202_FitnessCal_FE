@@ -336,7 +336,7 @@ const ManagePage = () => {
             />
           )}
 
-          {selectedMenu === "overview" && <OverviewSection />}
+          {selectedMenu === "overview" && <OverviewSection darkMode={darkMode} />}
 
           {selectedMenu === "revenue" && <RevenueSection />}
         </div>
