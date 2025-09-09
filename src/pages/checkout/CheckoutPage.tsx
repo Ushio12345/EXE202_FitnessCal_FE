@@ -73,8 +73,13 @@ const CheckoutPage: React.FC = () => {
         if (Array.isArray(res.data)) {
           // Loại bỏ gói Free
           const filtered = res.data.filter((p: any) => p.price > 0);
-          setPlans(filtered);
-          if (filtered.length > 0) setSelected(filtered[0].packageId);
+          // Sắp xếp theo thứ tự: 1 tháng, 3 tháng, 6 tháng
+          const order = [1, 3, 6];
+          const sorted = order
+            .map(months => filtered.find((p: any) => p.durationMonths === months))
+            .filter(Boolean) as Plan[];
+          setPlans(sorted);
+          if (sorted.length > 0) setSelected(sorted[0].packageId);
         }
       } catch (err) {
         setPlans([]);
@@ -259,24 +264,57 @@ const CheckoutPage: React.FC = () => {
               const originalPrice = plan.durationMonths * basePrice;
               const isSale = plan.durationMonths > 1 && plan.price < originalPrice;
               const isSelected = selected === plan.packageId;
+              // Tính năng cho từng gói
+              let features: string[] = [];
+              if (plan.durationMonths === 1) {
+                features = [
+                  "Truy cập đầy đủ các bài tập",
+                  "Lưu lịch sử tập luyện",
+                  "Hỗ trợ cơ bản qua email"
+                ];
+              } else if (plan.durationMonths === 3) {
+                features = [
+                  "Tất cả tính năng của gói 1 tháng",
+                  "Ưu đãi giảm giá 15%",
+                  "Ưu tiên hỗ trợ qua email",
+                  "Thống kê tiến trình nâng cao"
+                ];
+              } else if (plan.durationMonths === 6) {
+                features = [
+                  "Tất cả tính năng của gói 3 tháng",
+                  "Ưu đãi giảm giá 25%",
+                  "Tư vấn cá nhân hóa",
+                  "Tham gia group cộng đồng Premium"
+                ];
+              }
               return (
                 <div
                   key={plan.packageId}
-                  className={`w-72 h-64 rounded-2xl border-2 p-8 flex flex-col items-center shadow transition-transform cursor-pointer select-none
+                  className={`w-72 min-h-72 rounded-2xl border-2 p-8 flex flex-col items-center shadow transition-transform cursor-pointer select-none
                     ${isSelected
                       ? 'border-indigo-600 bg-indigo-50 dark:bg-gray-900 scale-105'
                       : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 hover:scale-105'}`}
                   onClick={() => setSelected(plan.packageId)}
                 >
-                  <div className="text-2xl font-bold mb-3 text-indigo-700 dark:text-indigo-200">{plan.durationMonths} tháng</div>
-                  <div className="mb-6 flex flex-col items-center">
+                 
+                  <div className="text-2xl font-bold mb-3 text-indigo-700 dark:text-indigo-200 tracking-wider">{plan.durationMonths} tháng</div>
+                  <div className="mb-4 flex flex-col items-center">
                     {isSale && (
-                      <span className="text-gray-400 dark:text-gray-500 text-base line-through mb-1">
+                      <span className="text-gray-400 dark:text-gray-500 text-base line-through mb-1 tracking-wider">
                         {originalPrice.toLocaleString('vi-VN')}₫
                       </span>
                     )}
-                    <span className="font-bold text-3xl text-indigo-700 dark:text-indigo-200">{plan.price.toLocaleString('vi-VN')}₫</span>
+                    <span className="font-bold text-3xl text-indigo-700 dark:text-indigo-200 tracking-widest">{plan.price.toLocaleString('vi-VN')}₫</span>
                   </div>
+                  {/* Danh sách tính năng */}
+                  <ul className="mb-4 w-full text-left text-sm space-y-1 tracking-wide">
+                    {features.map((f, idx) => (
+                      <li key={idx} className="flex items-start gap-2">
+                        <span className="text-green-500 mt-0.5">•</span>
+                        <span className="text-gray-700 dark:text-gray-200 tracking-wide">{f}</span>
+                      </li>
+                    ))}
+                  </ul>
                   <button
                     className={`mt-auto w-full py-3 rounded-lg font-semibold text-lg transition-colors duration-200
                       ${isSelected

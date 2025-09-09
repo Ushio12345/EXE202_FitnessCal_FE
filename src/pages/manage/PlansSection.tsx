@@ -1,7 +1,10 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { BadgePercent, Calendar, Crown } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
+import axiosInstance from "@/axios/instance";
+import { toast, ToastContainer } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
 
 interface PlansSectionProps {
   darkMode?: boolean;
@@ -13,6 +16,12 @@ const defaultPrices: Record<PlanKey, number> = {
   "1m": 0,
   "3m": 0,
   "6m": 0,
+};
+
+const planKeyByPackageName: Record<string, PlanKey> = {
+  "1-month": "1m",
+  "3-months": "3m",
+  "6-months": "6m",
 };
 
 interface PlanCardProps {
@@ -72,22 +81,67 @@ const PlanCard = ({ darkMode, label, keyName, badge, icon, prices, onChange }: P
 };
 
 const PlansSection = ({ darkMode }: PlansSectionProps) => {
+
   const [prices, setPrices] = useState<Record<PlanKey, number>>(defaultPrices);
-  const [currentPrices, setCurrentPrices] = useState<Record<PlanKey, number>>(defaultPrices);
+  const [packageIds, setPackageIds] = useState<Record<PlanKey, number>>({ "1m": 0, "3m": 0, "6m": 0 });
+  const [loading, setLoading] = useState<boolean>(true);
   const [saving, setSaving] = useState<boolean>(false);
 
   const formatCurrency = (value: number) =>
     new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND", minimumFractionDigits: 0 }).format(value || 0);
+
+
+  // Fetch all premium packages on mount
+  useEffect(() => {
+    const fetchPackages = async () => {
+      setLoading(true);
+      try {
+        const res = await axiosInstance.get("/premium-packages");
+        if (Array.isArray(res.data)) {
+          const newPrices: Record<PlanKey, number> = { ...defaultPrices };
+          const newIds: Record<PlanKey, number> = { "1m": 0, "3m": 0, "6m": 0 };
+          res.data.forEach((pkg: any) => {
+            const key = planKeyByPackageName[pkg.name];
+            if (key) {
+              newPrices[key] = pkg.price;
+              newIds[key] = pkg.packageId;
+            }
+          });
+          setPrices(newPrices);
+          setPackageIds(newIds);
+        }
+      } catch (err: any) {
+        toast.error("Không thể tải dữ liệu gói premium");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchPackages();
+  }, []);
 
   const handleChange = (key: PlanKey, value: string) => {
     const num = Number(value.replace(/[^0-9]/g, ""));
     setPrices((prev) => ({ ...prev, [key]: isNaN(num) ? 0 : num }));
   };
 
+
   const handleSave = async () => {
     setSaving(true);
-    // TODO: call API to save prices when backend ready
-    setTimeout(() => setSaving(false), 800);
+    try {
+      // Update each plan price via API
+      const updatePromises = (Object.keys(prices) as PlanKey[]).map(async (key) => {
+        const id = packageIds[key];
+        if (id) {
+          await axiosInstance.put(`/premium-packages/${id}`, { price: prices[key] });
+        }
+      });
+      await Promise.all(updatePromises);
+      toast.success("Cập nhật giá thành công!");
+    } catch (err: any) {
+      toast.error("Cập nhật giá thất bại!");
+    } finally {
+      setSaving(false);
+    }
   };
 
   const info = useMemo(() => ([
@@ -98,44 +152,23 @@ const PlansSection = ({ darkMode }: PlansSectionProps) => {
 
   return (
     <div className="space-y-6">
+      {/* ToastContainer top right for notifications */}
+      <div className="fixed top-20 right-8 z-[101] flex flex-col items-end gap-2">
+        <ToastContainer
+          position="top-right"
+          toastStyle={{ background: '#111', color: '#fff' }}
+          closeOnClick
+          draggable
+        />
+      </div>
       <div className="flex justify-between items-center">
         <h2 className={`text-2xl font-bold ${darkMode ? 'text-white' : 'text-title'}`}>Giá gói</h2>
-        <Button onClick={handleSave} disabled={saving} className="bg-primary text-white">
+        <Button onClick={handleSave} disabled={saving || loading} className="bg-primary text-white">
           {saving ? 'Đang lưu...' : 'Lưu thay đổi'}
         </Button>
       </div>
 
-      {/* Current applied prices */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {/* 1m */}
-        <Card className={`${darkMode ? 'bg-gradient-to-br from-gray-950 to-gray-900 border-gray-800' : 'bg-gradient-to-br from-white to-indigo-50/40'} p-5 shadow-lg`}>
-          <div className="flex items-center justify-between mb-2">
-            <span className={`text-sm font-medium ${darkMode ? 'text-indigo-200' : 'text-indigo-700'}`}>Gói 1 tháng</span>
-            <Calendar className={`${darkMode ? 'text-indigo-300' : 'text-indigo-600'} w-4 h-4`} />
-          </div>
-          <p className={`text-2xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>{formatCurrency(currentPrices['1m'])}</p>
-          <p className={`${darkMode ? 'text-gray-400' : 'text-gray-500'} text-xs mt-1`}>Giá đang áp dụng</p>
-        </Card>
-        {/* 3m */}
-        <Card className={`${darkMode ? 'bg-gradient-to-br from-gray-950 to-gray-900 border-gray-800' : 'bg-gradient-to-br from-white to-indigo-50/40'} p-5 shadow-lg`}>
-          <div className="flex items-center justify-between mb-2">
-            <span className={`text-sm font-medium ${darkMode ? 'text-indigo-200' : 'text-indigo-700'}`}>Gói 3 tháng</span>
-            <BadgePercent className={`${darkMode ? 'text-indigo-300' : 'text-indigo-600'} w-4 h-4`} />
-          </div>
-          <p className={`text-2xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>{formatCurrency(currentPrices['3m'])}</p>
-          <p className={`${darkMode ? 'text-gray-400' : 'text-gray-500'} text-xs mt-1`}>Giá đang áp dụng</p>
-        </Card>
-        {/* 6m */}
-        <Card className={`${darkMode ? 'bg-gradient-to-br from-gray-950 to-gray-900 border-gray-800' : 'bg-gradient-to-br from-white to-indigo-50/40'} p-5 shadow-lg`}>
-          <div className="flex items-center justify-between mb-2">
-            <span className={`text-sm font-medium ${darkMode ? 'text-indigo-200' : 'text-indigo-700'}`}>Gói 6 tháng</span>
-            <Crown className={`${darkMode ? 'text-indigo-300' : 'text-indigo-600'} w-4 h-4`} />
-          </div>
-          <p className={`text-2xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>{formatCurrency(currentPrices['6m'])}</p>
-          <p className={`${darkMode ? 'text-gray-400' : 'text-gray-500'} text-xs mt-1`}>Giá đang áp dụng</p>
-        </Card>
-      </div>
-
+      {/* Current prices (editable) */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {info.map(p => (
           <PlanCard
