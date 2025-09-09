@@ -10,6 +10,7 @@ import { Input } from "../../../components/ui/input";
 import { DiscordIcon, GoogleIcon } from "../../../components/icon";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import ThemeToggle from "@/components/ui/ThemeToggle";
 
 import { type AppDispatch, type RootState } from "@/store/store";
 import {

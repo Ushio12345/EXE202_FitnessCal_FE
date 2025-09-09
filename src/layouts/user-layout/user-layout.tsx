@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { getUserIdFromToken } from "@/lib/utils/jwt";
 import axiosInstance from "@/axios/instance";
 import Logo from "@/components/logo/logo";
+import ThemeToggle from "@/components/ui/ThemeToggle";
 
 const plans = [
   {
@@ -77,6 +78,7 @@ const UserLayout: React.FC = () => {
       {/* Logo ở góc trái trên cùng */}
       <div className="absolute top-6 left-8 z-20">
         <Logo />
+        <ThemeToggle />
       </div>
       {/* Background gradient for both modes */}
       <div className="absolute inset-0 -z-10 pointer-events-none">

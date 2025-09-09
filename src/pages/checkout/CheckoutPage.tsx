@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axiosInstance from "@/axios/instance";
 import { getUserIdFromToken } from "@/lib/utils/jwt";
+import Logo from "@/components/logo/logo";
+import ThemeToggle from "@/components/ui/ThemeToggle";
 
 
 interface Plan {
@@ -78,7 +80,31 @@ const CheckoutPage: React.FC = () => {
         setPlans([]);
       }
     };
+
+    // Check trạng thái subscription
+    const checkSubscriptionStatus = async () => {
+      try {
+        const accessToken = localStorage.getItem("accessToken");
+        const userId = accessToken ? getUserIdFromToken(accessToken) : null;
+        if (!userId) return;
+        const res = await axiosInstance.get(`/Subscription/${userId}`);
+        if (res.data?.success && res.data?.data) {
+          const sub = res.data.data;
+          if (sub.paymentStatus === "failed") {
+            const duration = sub.package?.durationMonths || "";
+            alert(`Bạn đã hủy gói ${duration} tháng.`);
+            // Xóa pendingPayment nếu có
+            const pendingKey = `pendingPayment_${userId}`;
+            localStorage.removeItem(pendingKey);
+            setPendingPaymentUrl(null);
+            setPendingExpiresAt(null);
+          }
+        }
+      } catch {}
+    };
+
     fetchPlans();
+    checkSubscriptionStatus();
   }, []);
   const navigate = useNavigate();
 
@@ -175,6 +201,14 @@ const CheckoutPage: React.FC = () => {
     <div
       className="min-h-screen flex flex-col items-center justify-center relative overflow-hidden transition-colors duration-300"
     >
+      <header className="p-5 pl-8 pr-5 flex items-center justify-between w-full max-w-7xl">
+        <div className="absolute top-6 left-6 z-50">
+          <Logo />
+        </div>
+        <div className="fixed top-6 right-6 z-50">
+          <ThemeToggle />
+        </div>
+      </header>
       {/* Background gradient for both modes */}
       <div className="absolute inset-0 -z-10 pointer-events-none">
         <div className="hidden dark:block w-full h-full" style={{background: 'radial-gradient(ellipse 80% 80% at 60% 20%, #18181b 40%, #312e81 100%)'}}></div>

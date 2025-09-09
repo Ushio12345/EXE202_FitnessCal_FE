@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
+import ChatAI from "@/components/ai/ChatAI";
 import { Typewriter } from 'react-simple-typewriter';
 import { useNavigate } from "react-router-dom";
 import axiosInstance from "@/axios/instance";
@@ -7,6 +8,8 @@ import FaqFloatingButton from "@/components/ui/FaqFloatingButton";
 import ThemeToggle from "@/components/ui/ThemeToggle";
 import { User2, ArrowUpCircle, LogOut } from "lucide-react";
 import Logo from "@/components/logo/logo";
+import { toast, ToastContainer } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
 
 
 interface UserInfo {
@@ -31,8 +34,11 @@ const UserPlanPage: React.FC = () => {
     const fetchUser = async () => {
       const accessToken = localStorage.getItem("accessToken");
       if (!accessToken) {
-        alert("Bạn cần đăng nhập để xem thông tin.");
-        navigate("/login");
+        showToast("Vui lòng đăng nhập để tiếp tục.", "error");
+        setLoading(false);
+        setTimeout(() => {
+          navigate("/login");
+        }, 2000);
         return;
       }
       // Ưu tiên lấy userId từ nameidentifier trong JWT
@@ -99,6 +105,7 @@ const UserPlanPage: React.FC = () => {
     fetchUser();
   }, [navigate]);
 
+
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 relative transition-colors duration-300 overflow-x-hidden overflow-y-hidden">
       {/* Background gradient login style for both light and dark mode */}
@@ -118,11 +125,23 @@ const UserPlanPage: React.FC = () => {
         </span>
       </div>
       {/* Theme toggle button */}
-      <ThemeToggle />
+      <div className="fixed top-8 right-8 z-[101] flex flex-col items-end gap-2">
+        <ThemeToggle />
+        {/* ToastContainer top right, just below ThemeToggle */}
+        <ToastContainer
+          position="top-right"
+          toastStyle={{ background: '#111', color: '#fff' }}
+          closeOnClick
+          draggable
+        />
+      </div>
 
       <button
         className="absolute top-6 left-6 p-0 bg-transparent border-none outline-none shadow-none hover:bg-transparent"
-        onClick={() => navigate("/")}
+        onClick={() => {
+          const accessToken = localStorage.getItem("accessToken");
+          navigate(accessToken ? "/plan" : "/");
+        }}
         aria-label="Trang chủ"
       >
         <Logo />
@@ -130,14 +149,18 @@ const UserPlanPage: React.FC = () => {
       {/* Thông tin người dùng ở góc trái dưới */}
       {/* User info button with menu */}
       <UserInfoMenu loading={loading} user={user} onLogout={() => {
-        setLogoutMsg("Đăng xuất thành công!");
+        showToast("Đăng xuất thành công!", "success");
         setTimeout(() => navigate("/"), 1200);
       }} />
-  {/* Theme toggle button */}
-  <ThemeToggle />
-  {/* FAQ floating button */}
-  <FaqFloatingButton />
-  </div>
+
+      {/* Chat AI ở trung tâm trang */}
+      <div className="flex flex-1 justify-center items-center p-4 relative z-40">
+        <ChatAI />
+      </div>
+
+      {/* FAQ floating button */}
+      <FaqFloatingButton />
+    </div>
   );
 
 interface UserInfoMenuProps {
@@ -226,4 +249,17 @@ function UserInfoMenu({ loading, user, onLogout }: UserInfoMenuProps) {
 export default UserPlanPage;
 
 
+function showToast(message: string, type: "success" | "error" | "info" | "warning" = "info") {
+  toast(message, {
+    type,
+    position: "top-right",
+    autoClose: 2500,
+    hideProgressBar: false,
+    closeOnClick: true,
+    pauseOnHover: true,
+    draggable: true,
+    progress: undefined,
+    theme: "colored",
+  });
+}
 // Toast component với progress bar và màu tương phản

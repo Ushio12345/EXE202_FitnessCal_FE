@@ -1,8 +1,12 @@
 import React, { useState, useRef, useEffect } from "react";
+import { toast, ToastContainer } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
+import LogoNotAuthenticated from "@/components/logo/logo-not_authenticated";
 import { Eye, EyeOff } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import ThemeToggle from "@/components/ui/ThemeToggle";
 import axiosInstance from "@/axios/instance";
 
 const ForgotPassword: React.FC = () => {
@@ -34,6 +38,17 @@ const ForgotPassword: React.FC = () => {
       await axiosInstance.post("/auth/forgot-password", { email });
       localStorage.setItem("forgot_email", email); // Lưu email vào localStorage
       setStep("reset");
+      // Hiển thị thông báo toast ở góc phải trên
+      toast.success(`Mã xác nhận đã được gửi qua email ${email}, bạn vui lòng kiểm tra hòm thư!`, {
+        position: "top-right",
+        autoClose: 3500,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "colored",
+      });
     } catch (err: any) {
       setError(
         err?.response?.data?.message || "Không gửi được email xác nhận. Vui lòng thử lại."
@@ -103,17 +118,32 @@ const ForgotPassword: React.FC = () => {
   };
 
   return (
-    <div className="h-screen w-screen flex flex-col overflow-x-hidden overflow-y-hidden relative">
+  <div className="h-screen w-screen flex flex-col overflow-x-hidden overflow-y-hidden relative bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
+      {/* ToastContainer top right, just below ThemeToggle */}
+      <div className="fixed top-20 right-8 z-[101] flex flex-col items-end gap-2">
+        <ToastContainer
+          position="top-right"
+          toastStyle={{ background: '#111', color: '#fff' }}
+          closeOnClick
+          draggable
+        />
+      </div>
+      <header className="p-5 relative">
+        <LogoNotAuthenticated />
+        <div className="fixed top-6 right-6 z-50">
+          <ThemeToggle />
+        </div>
+      </header>
       {/* Background gradient giống login */}
-      <div className="bg-gradient-login absolute w-[1809px] -top-[400px] h-[1100px] rounded-bl-full -right-[900px]  blur-3xl "></div>
-      <div className="bg-gradient-login absolute w-[1809px] h-[1100px] rounded-tr-full  blur-3xl -bottom-[500px] -left-[1000px]"></div>
+  <div className="bg-gradient-login absolute w-[1809px] -top-[400px] h-[1100px] rounded-bl-full -right-[900px] blur-3xl pointer-events-none dark:opacity-60 opacity-100 transition-opacity duration-300"></div>
+  <div className="bg-gradient-login absolute w-[1809px] h-[1100px] rounded-tr-full blur-3xl -bottom-[500px] -left-[1000px] pointer-events-none dark:opacity-60 opacity-100 transition-opacity duration-300"></div>
       <main className="flex flex-1 justify-center items-center p-4 relative">
-        <div className="bg-white rounded-2xl shadow-lg p-8 max-w-md w-full border border-primary-100">
-          <h2 className="text-2xl font-bold mb-6 text-indigo-700 text-center">Quên mật khẩu</h2>
+  <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-lg p-8 max-w-md w-full border border-primary-100 dark:border-gray-700 transition-colors duration-300">
+          <h2 className="text-2xl font-bold mb-6 text-indigo-700 dark:text-indigo-200 text-center">Quên mật khẩu</h2>
           {step === "email" && (
             <form onSubmit={handleSendEmail} className="space-y-5">
               <div>
-                <label htmlFor="forgot-email" className="block font-medium mb-2 text-gray-700">
+                <label htmlFor="forgot-email" className="block font-medium mb-2 text-gray-700 dark:text-gray-200">
                   Nhập email của bạn
                 </label>
                 <Input
@@ -126,10 +156,10 @@ const ForgotPassword: React.FC = () => {
                   className="py-3 px-4"
                 />
               </div>
-              {error && <div className="text-error text-sm italic">{error}</div>}
+              {error && <div className="text-error text-sm italic dark:text-error-400">{error}</div>}
               <Button
                 type="submit"
-                className="w-full bg-indigo-600 text-white py-3 text-lg rounded-lg hover:bg-indigo-700 mb-2"
+                className="w-full bg-indigo-600 text-white py-3 text-lg rounded-lg hover:bg-indigo-700 mb-2 dark:bg-indigo-700 dark:hover:bg-indigo-800"
                 disabled={loading}
               >
                 {loading ? "Đang gửi..." : "Gửi mã xác nhận"}
@@ -137,7 +167,7 @@ const ForgotPassword: React.FC = () => {
               <Button
                 type="button"
                 variant="outline"
-                className="w-full border-primary text-primary bg-white hover:bg-primary-50"
+                className="w-full border-primary text-primary bg-white hover:bg-primary-50 dark:bg-gray-900 dark:text-primary-200 dark:border-gray-700"
                 onClick={() => navigate('/login')}
               >
                 Quay lại
@@ -147,7 +177,7 @@ const ForgotPassword: React.FC = () => {
           {step === "reset" && (
             <form onSubmit={handleResetPassword} className="space-y-5">
               <div>
-                <label className="block font-medium mb-2 text-gray-700">
+                <label className="block font-medium mb-2 text-gray-700 dark:text-gray-200">
                   Nhập mã OTP đã gửi về email
                 </label>
                 <div className="flex gap-2 justify-center mb-2">
@@ -161,7 +191,7 @@ const ForgotPassword: React.FC = () => {
                       inputMode="numeric"
                       pattern="[0-9]*"
                       maxLength={1}
-                      className="w-12 h-14 text-center text-2xl border border-primary-200 rounded-lg focus:outline-primary-500 bg-gray-50"
+                      className="w-12 h-14 text-center text-2xl border border-primary-200 dark:border-gray-700 rounded-lg focus:outline-primary-500 bg-gray-50 dark:bg-gray-800 dark:text-white"
                       value={digit}
                       onChange={e => handleOtpChange(idx, e.target.value)}
                       onPaste={e => {
@@ -175,7 +205,7 @@ const ForgotPassword: React.FC = () => {
                     />
                   ))}
                 </div>
-                <label className="block font-medium mb-2 text-gray-700 mt-4">Mật khẩu mới</label>
+                <label className="block font-medium mb-2 text-gray-700 dark:text-gray-200 mt-4">Mật khẩu mới</label>
                 <div className="relative">
                   <Input
                     type={showPassword ? "text" : "password"}
@@ -183,18 +213,18 @@ const ForgotPassword: React.FC = () => {
                     onChange={e => setPassword(e.target.value)}
                     placeholder="Nhập mật khẩu mới"
                     required
-                    className="py-3 px-4 pr-12"
+                    className="py-3 px-4 pr-12 dark:bg-gray-800 dark:text-white"
                   />
                   <button
                     type="button"
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
                     tabIndex={-1}
                     onClick={() => setShowPassword(v => !v)}
                   >
                     {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                   </button>
                 </div>
-                <label className="block font-medium mb-2 text-gray-700 mt-4">Xác nhận mật khẩu mới</label>
+                <label className="block font-medium mb-2 text-gray-700 dark:text-gray-200 mt-4">Xác nhận mật khẩu mới</label>
                 <div className="relative">
                   <Input
                     type={showConfirmPassword ? "text" : "password"}
@@ -202,11 +232,11 @@ const ForgotPassword: React.FC = () => {
                     onChange={e => setConfirmPassword(e.target.value)}
                     placeholder="Nhập lại mật khẩu mới"
                     required
-                    className="py-3 px-4 pr-12"
+                    className="py-3 px-4 pr-12 dark:bg-gray-800 dark:text-white"
                   />
                   <button
                     type="button"
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
                     tabIndex={-1}
                     onClick={() => setShowConfirmPassword(v => !v)}
                   >
@@ -214,11 +244,11 @@ const ForgotPassword: React.FC = () => {
                   </button>
                 </div>
               </div>
-              {error && <div className="text-error text-sm italic">{error}</div>}
-              {success && <div className="text-success-600 text-sm italic font-semibold">{success}</div>}
+              {error && <div className="text-error text-sm italic dark:text-error-400">{error}</div>}
+              {success && <div className="text-success-600 dark:text-success-400 text-sm italic font-semibold">{success}</div>}
               <Button
                 type="submit"
-                className="w-full bg-indigo-600 text-white py-3 text-lg rounded-lg hover:bg-indigo-700 mb-2"
+                className="w-full bg-indigo-600 text-white py-3 text-lg rounded-lg hover:bg-indigo-700 mb-2 dark:bg-indigo-700 dark:hover:bg-indigo-800"
                 disabled={loading}
               >
                 {loading ? "Đang đặt lại mật khẩu..." : "Xác nhận"}
@@ -226,7 +256,7 @@ const ForgotPassword: React.FC = () => {
               <Button
                 type="button"
                 variant="outline"
-                className="w-full border-primary text-primary bg-white hover:bg-primary-50"
+                className="w-full border-primary text-primary bg-white hover:bg-primary-50 dark:bg-gray-900 dark:text-primary-200 dark:border-gray-700"
                 onClick={() => navigate('/login')}
               >
                 Quay lại

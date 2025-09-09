@@ -1,18 +1,11 @@
-
 import { Link } from "react-router-dom";
 import { LoginIcon } from "../Icon";
 import ROUTE_PATH from "@/types/route-type";
-import { useAuth } from "@/hooks/useAuth";
 
-
-const Logo = () => {
-  const { user } = useAuth();
-  // Nếu user null, undefined, hoặc không có id/email thì coi là chưa login
-  const isLoggedIn = user && (user.id || user.email);
-  const to = isLoggedIn ? "/plan" : "/";
+const LogoNotAuthenticated = () => {
   return (
     <Link
-      to={to}
+      to={ROUTE_PATH.AUTH_PAGE}
       className="flex items-center gap-4 px-6"
     >
       <LoginIcon />
@@ -21,4 +14,4 @@ const Logo = () => {
   );
 };
 
-export default Logo;
+export default LogoNotAuthenticated;

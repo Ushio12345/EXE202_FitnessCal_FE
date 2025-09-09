@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import Logo from "@/components/logo/logo";
+import ThemeToggle from "@/components/ui/ThemeToggle";
 
 const PolicyPage: React.FC = () => {
   const navigate = useNavigate();
@@ -11,17 +12,18 @@ const PolicyPage: React.FC = () => {
   }, []);
   return (
     <div className="h-screen w-screen flex flex-col overflow-x-hidden overflow-y-hidden relative bg-white dark:bg-gray-950 transition-colors duration-300">
-      {/* Background gradient for both light and dark mode */}
-      {/* Light mode gradient */}
-      <div className="bg-gradient-login absolute w-[1809px] -top-[400px] h-[1100px] rounded-bl-full -right-[900px] blur-3xl pointer-events-none opacity-100 dark:opacity-0 transition-opacity duration-300"></div>
-      <div className="bg-gradient-login absolute w-[1809px] h-[1100px] rounded-tr-full blur-3xl -bottom-[500px] -left-[1000px] pointer-events-none opacity-100 dark:opacity-0 transition-opacity duration-300"></div>
-      {/* Dark mode gradient */}
-      <div className="hidden dark:block absolute inset-0 -z-10 pointer-events-none">
-        <div className="w-full h-full" style={{background: 'radial-gradient(ellipse 80% 80% at 60% 20%, #18181b 40%, #312e81 100%)'}}></div>
-      </div>
+      <header className="p-5 relative">
+        <Logo />
+        <div className="fixed top-6 right-6 z-50">
+          <ThemeToggle />
+        </div>
+      </header>
+  {/* Background gradient cho cả light và dark mode */}
+  {/* Light mode gradient */}
+  <div className="bg-gradient-login absolute w-[1809px] -top-[400px] h-[1100px] rounded-bl-full -right-[900px] blur-3xl pointer-events-none opacity-100 dark:opacity-60 transition-opacity duration-300"></div>
+  <div className="bg-gradient-login absolute w-[1809px] h-[1100px] rounded-tr-full blur-3xl -bottom-[500px] -left-[1000px] pointer-events-none opacity-100 dark:opacity-60 transition-opacity duration-300"></div>
       <main className="flex flex-1 justify-center items-center p-4 relative">
         <div className="w-full max-w-2xl bg-white dark:bg-gray-900 rounded-2xl shadow-lg p-8 border border-primary-100 dark:border-gray-700 flex flex-col items-center transition-colors duration-300">
-          <Logo />
           <h1 className="text-3xl font-bold text-primary dark:text-indigo-200 mb-8 text-center">Chính sách & Quyền riêng tư</h1>
           <div className="space-y-6 text-gray-700 dark:text-gray-200 text-base w-full">
             <p>
