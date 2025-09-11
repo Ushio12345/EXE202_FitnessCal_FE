@@ -1,16 +1,15 @@
 import { motion } from "framer-motion";
-import { useState, type FormEvent, useEffect } from "react";
+import { useState, useEffect } from "react";
 import Cookies from "js-cookie";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { Mail, Lock, Loader2, Eye, EyeOff } from "lucide-react";
-import { useTypewriter, Cursor } from 'react-simple-typewriter';
-import { Button } from "../../../components/ui/button";
+import { useTypewriter } from 'react-simple-typewriter';
+import { Button } from "../../../components/ui/Button";
 import { useForm } from "react-hook-form";
 import { Input } from "../../../components/ui/input";
-import { DiscordIcon, GoogleIcon } from "../../../components/icon";
+import { DiscordIcon, GoogleIcon } from "../../../components/Icon";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import ThemeToggle from "@/components/ui/ThemeToggle";
 
 import { type AppDispatch, type RootState } from "@/store/store";
 import {
@@ -39,7 +38,6 @@ export default function LoginForm() {
   const {
     register,
     handleSubmit,
-    setValue,
     formState: { errors },
   } = useForm<FormData>({
     resolver: yupResolver(schema),

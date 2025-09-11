@@ -2,8 +2,6 @@ import "./styles/index.css";
 import MainRoutes from "./routes/main-routes";
 
 import { AnimatePresence } from "framer-motion";
-import { useAuth } from "./hooks/useAuth";
-import LoadingSpinner from "./components/loading/Loading";
 import { useEffect } from "react";
 
 const App = () => {

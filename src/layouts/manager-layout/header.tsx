@@ -1,6 +1,6 @@
 import Logo from "@/components/logo/logo";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/Button";
 import { useAuth } from "@/hooks/useAuth";
 import { Bell, LogOut, Settings, User } from "lucide-react";
 import {
@@ -12,11 +12,12 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useDispatch } from "react-redux";
+import type { AppDispatch } from "@/store/store";
 import { logoutUser } from "@/store/slices/auth-slice";
 
 const Header = () => {
   const { user } = useAuth();
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
 
   const handleLogout = () => {
     dispatch(logoutUser());

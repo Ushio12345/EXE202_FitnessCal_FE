@@ -1,9 +1,8 @@
 import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/Button";
 import { Upload } from "lucide-react";
 import axiosInstance from "@/axios/instance";
 import { useEffect, useState } from "react";
-import { DollarSign } from "lucide-react";
 
 interface RevenueSectionProps {
   darkMode?: boolean;

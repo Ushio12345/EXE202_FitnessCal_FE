@@ -1,8 +1,7 @@
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button } from "@/components/ui/Button";
 import { Users, Upload, Filter, Ban, Loader2 } from "lucide-react";
 import type { Subscription } from "@/types/subscription-type";
 import type { AllUserType } from "@/types/all-user-type";
@@ -28,7 +27,6 @@ const UsersSection = ({
   subscriptions,
   loading,
   error,
-  success,
   banningUser,
   fetchSubscriptions,
   handleBlockUser,

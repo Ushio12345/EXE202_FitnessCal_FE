@@ -3,7 +3,7 @@ import { Suspense } from "react";
 import NotFound from "../pages/not-found/not-found";
 import FAQPage from "../pages/faq/FAQPage";
 import WelcomePage from "../pages/not-found/welcome-page/welcome-page";
-import Login from "../pages/login/login";
+import Login from "../pages/login/Login";
 import PolicyPage from "../pages/policy/PolicyPage";
 import LoadingSpinner from "@/components/loading/Loading";
 import ManagePage from "@/pages/manage/manage-page";

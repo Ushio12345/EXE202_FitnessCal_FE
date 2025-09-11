@@ -8,10 +8,10 @@ import {
   Facebook,
 } from "lucide-react";
 import Banner from "@/assets/images/banner.jpg";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/Button";
 import { Typewriter } from 'react-simple-typewriter';
 
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useState, useEffect, useRef } from "react";
 
 export default function WelcomePage() {

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import ChatAI from "@/components/ai/ChatAI";
 import { Typewriter } from 'react-simple-typewriter';
 import { useNavigate } from "react-router-dom";
@@ -24,7 +24,7 @@ interface UserInfo {
 const UserPlanPage: React.FC = () => {
   const [user, setUser] = useState<UserInfo | null>(null);
   const [loading, setLoading] = useState(true);
-  const [logoutMsg, setLogoutMsg] = useState("");
+  const [] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {

@@ -1,7 +1,7 @@
 import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/Button";
 import { BadgePercent, Calendar, Crown } from "lucide-react";
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useState, useEffect, type JSX } from "react";
 import axiosInstance from "@/axios/instance";
 import { toast, ToastContainer } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
@@ -86,10 +86,6 @@ const PlansSection = ({ darkMode }: PlansSectionProps) => {
   const [packageIds, setPackageIds] = useState<Record<PlanKey, number>>({ "1m": 0, "3m": 0, "6m": 0 });
   const [loading, setLoading] = useState<boolean>(true);
   const [saving, setSaving] = useState<boolean>(false);
-
-  const formatCurrency = (value: number) =>
-    new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND", minimumFractionDigits: 0 }).format(value || 0);
-
 
   // Fetch all premium packages on mount
   useEffect(() => {

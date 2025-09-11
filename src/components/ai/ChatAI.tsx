@@ -17,7 +17,7 @@ const ChatAI: React.FC = () => {
     setIsSending(true);
     // TODO: Gọi API AI ở đây, tạm thời trả về câu trả lời mẫu
     setTimeout(() => {
-      setChat(prev => [...prev, { role: "ai", content: "Đây là câu trả lời mẫu từ AI. (Tích hợp API sau)" }]);
+      setChat(prev => [...prev, { role: "ai", content: "Mình sẽ trả lời bạn sớm nhé, FitnessCalAI" }]);
       setIsSending(false);
     }, 1000);
     setPrompt("");

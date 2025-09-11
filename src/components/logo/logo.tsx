@@ -1,7 +1,6 @@
 
 import { Link } from "react-router-dom";
 import { LoginIcon } from "../Icon";
-import ROUTE_PATH from "@/types/route-type";
 import { useAuth } from "@/hooks/useAuth";
 
 

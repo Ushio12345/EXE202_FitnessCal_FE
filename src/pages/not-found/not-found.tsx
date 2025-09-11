@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/Button";
 import { motion } from "framer-motion";
 import { useLocation, Link } from "react-router-dom";
 import { Apple, Dumbbell, Home, Utensils } from "lucide-react";

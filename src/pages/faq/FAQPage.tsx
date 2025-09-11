@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/Button";
 import { useNavigate } from "react-router-dom";
 import Logo from "@/components/logo/logo";
 import ThemeToggle from "@/components/ui/ThemeToggle";
